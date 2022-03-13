@@ -13,10 +13,7 @@ HEADERS =	$(shell find $(INCLUDE) -type f -name '*.h')
 
 .PHONY: all run clean builddir
 
-all: builddir vvm-riscv
-
-builddir:
-	@if [ ! -d "build" ] ; then mkdir build ; fi
+all: vvm-riscv
 
 builddir:
 	@if [ ! -d "build" ] ; then mkdir build ; fi
