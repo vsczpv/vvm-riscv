@@ -18,6 +18,9 @@ all: builddir vvm-riscv
 builddir:
 	@if [ ! -d "build" ] ; then mkdir build ; fi
 
+builddir:
+	@if [ ! -d "build" ] ; then mkdir build ; fi
+
 run: vvm-riscv
 	./vvm-riscv sample/sample.bin
 
@@ -31,5 +34,5 @@ sample/sample.bin: sample/sample.S
 	$(AS) -fno-pic -R -march=rv32i sample/sample.S -o sample/sample.o
 	$(OBJCP) --dump-section .text=$@ sample/sample.o
 
-vvm-riscv: sample/sample.bin $(OBJS)
+vvm-riscv: builddir sample/sample.bin $(OBJS)
 	$(CC) $(CARGS) $(OBJS) -o $@
