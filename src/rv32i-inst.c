@@ -694,8 +694,14 @@ bool rv32i_inst_system(int inst, rv32i_hart_s* cpu)
 					rv32i_error_backtrace(*cpu);
 					return true;
 			}
+			break;
 		}
-		case RV32I_OPCODE_SYSTEM_PRIV_EBREAK: break;
+		case RV32I_OPCODE_SYSTEM_PRIV_EBREAK:
+		{
+			rv32i_error_backtrace(*cpu);
+			if (getchar() == '\n') getchar();
+			break;
+		}
 		default:
 		{
 			rv32i_error_inval2("SYSTEM ", param.immd, 0, inst, cpu->pc - 4);
