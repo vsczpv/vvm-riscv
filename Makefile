@@ -11,9 +11,12 @@ CARGS = 	$(OPT_CARGS) -I$(INCLUDE) -Wall -Wextra -std=c2x -Wno-misleading-indent
 OBJS = 		$(shell find $(SOURCE) -type f -name '*.c' | sed 's/\.c*$$/\.o/; s/$(SOURCE)\//$(BUILD)\//')
 HEADERS =	$(shell find $(INCLUDE) -type f -name '*.h')
 
-.PHONY: all run clean
+.PHONY: all run clean builddir
 
-all: vvm-riscv
+all: builddir vvm-riscv
+
+builddir:
+	@if [ ! -d "build" ] ; then mkdir build ; fi
 
 run: vvm-riscv
 	./vvm-riscv sample/sample.bin
