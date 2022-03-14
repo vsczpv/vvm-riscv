@@ -119,6 +119,7 @@ int main(int argc, char* argv[])
 	rv32i_hart_execute(&cpu);
 
 	munmap(file.buf, file.st.st_size);
+	close(file.fd);
 
 	rv32i_hart_destroy(cpu);
 
