@@ -105,4 +105,11 @@ Programs are to be loaded as flat binaries. Assuming the GNU toolchain, a compil
 
 Written by Vinícius Schütz Piva <vinicius.vsczpv@outlook.com>.
 
-Started on 16/01/2022, last updated 13/03/2022.
+Started on 16/01/2022, last updated 14/03/2022.
+
+# License
+---
+
+vvm-riscv is licensed under GNU GPL-3-or-later;
+
+Full license is available in COPYING file, or alternitively at <https://www.gnu.org/licenses/>.

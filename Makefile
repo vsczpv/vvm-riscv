@@ -1,3 +1,5 @@
+VERSION = "0.1.0"
+
 SOURCE =	src
 BUILD =		build
 INCLUDE =	include
@@ -6,7 +8,7 @@ CC =		cc
 AS =		riscv32-elf-as
 OBJCP =		riscv32-elf-objcopy
 OPT_CARGS :=
-CARGS = 	$(OPT_CARGS) -I$(INCLUDE) -Wall -Wextra -std=c2x -Wno-misleading-indentation -Wno-missing-field-initializers
+CARGS = 	$(OPT_CARGS) -I$(INCLUDE) -DVERSION='$(VERSION)' -Wall -Wextra -std=c2x -Wno-misleading-indentation -Wno-missing-field-initializers
 
 OBJS = 		$(shell find $(SOURCE) -type f -name '*.c' | sed 's/\.c*$$/\.o/; s/$(SOURCE)\//$(BUILD)\//')
 HEADERS =	$(shell find $(INCLUDE) -type f -name '*.h')

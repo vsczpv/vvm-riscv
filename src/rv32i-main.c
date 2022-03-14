@@ -1,3 +1,23 @@
+/*
+ * Copyright © 2022 Vinícius Schütz Piva
+ *
+ * This file is part of vvm-riscv
+ *
+ * vvm-riscv is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>
+ *
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -20,17 +40,32 @@ void usage(void)
 	puts
 	(
 		"\n"
-		"Usage: vvm-riscv [-m <ram>] [-h|--help] FILENAME"
+		"Usage: vvm-riscv [-m <ram>] [-h|--help] [--version] FILENAME"
 		"\n\n"
-		"       -m <ram>        Specify amount of ram in kibibytes (1024). Value cannot be 0.\n"
-		"                       Default value is 16KiB\n"
+		"       -m <ram>        Specify amount of ram in kibibytes (1024).\n"
+		"                       Value cannot be 0.\n"
+		"                       Default value is 16KiB.\n"
 		"\n"
-		"       -h, --help      Show this prompt."
+		"       -h, --help      Show this prompt.\n"
+		"       --version       Show version and license."
 		"\n\n"
 		"    FILENAME must be a path to a raw RISCV RV32I flat binary."
 		"\n"
 	);
 
+}
+
+void version(void)
+{
+	puts
+	(
+		"vvm-riscv, version " VERSION "\n"
+		"Copyright (C) 2022 Vinícius Schütz Piva\n"
+		"Licensed under GNU GPL-3-or-later <http://gnu.org/licenses/gpl.html>\n"
+		"\n"
+		"This is free software; you are free to change and redistribute it.\n"
+		"There is NO WARRANTY, to the extent permitted by law."
+	);
 }
 
 void parse_cmdline(int argc, char* argv[])
@@ -44,6 +79,7 @@ void parse_cmdline(int argc, char* argv[])
 		for (int i = 1; i < argc; i++)
 		{
 			if ( !strcmp(argv[i], "-h") && !strcmp(argv[i], "--help") ) { usage(); exit(EXIT_SUCCESS); }
+			else if ( !strcmp(argv[i], "--version") ) { version(); exit(EXIT_SUCCESS); }
 			else if ( !strcmp(argv[i], "-m"))
 			{
 				if (ramset || i+1 >= argc) { usage(); exit(EXIT_FAILURE); }
