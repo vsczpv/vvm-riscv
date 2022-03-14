@@ -96,6 +96,7 @@ Programs are to be loaded as flat binaries. Assuming the GNU toolchain, a compil
 							Default value is 16KiB
 
 			-h, --help      Show this prompt.
+			--version       Show version and license.
 
 		FILENAME must be a path to a raw RISCV RV32I flat binary.
 
