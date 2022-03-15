@@ -53,5 +53,6 @@ void rv32i_hart_destroy(rv32i_hart_s cpu);
 void rv32i_hart_execute(rv32i_hart_s* cpu);
 
 extern bool debug;
+extern bool noopstub;
 
 #endif /* RV32I_EMU_H_ */

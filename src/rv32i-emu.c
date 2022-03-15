@@ -93,7 +93,7 @@ void rv32i_hart_execute(rv32i_hart_s* cpu)
 
 		if ( rv32i_inst_getopcode(inst) > RV32I_OPCODE_CUSTOM3 ) { rv32i_error_malinst(inst, cpu->pc); break; }
 
-		if ( debug ) rv32i_backtrace(cpu), getchar(), system("clear");
+		if ( debug ) system("clear"), rv32i_backtrace(cpu), getchar();
 
 		if ( rv32i_inst_instructions[rv32i_inst_getopcode(inst)](inst, cpu) ) break;
 	}

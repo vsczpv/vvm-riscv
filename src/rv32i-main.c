@@ -37,20 +37,22 @@
 char* filename = NULL;
 int ramamnt = 16;
 bool debug = false;
+bool noopstub = false;
 
 void usage(void)
 {
 	puts
 	(
 		"\n"
-		"Usage: vvm-riscv [-m <ram>] [-h|--help] [--version] FILENAME"
+		"Usage: vvm-riscv [-m <ram>] [-h|--help] [--debug] [--noop-stub] [--version] FILENAME"
 		"\n\n"
 		"       -m <ram>        Specify amount of ram in kibibytes (1024).\n"
 		"                       Value cannot be 0.\n"
-		"                       Default value is 16KiB.\n"
-		"\n"
+		"                       Default value is 16KiB."
+		"\n\n"
 		"       -h, --help      Show this prompt.\n"
 		"       --debug         Step-by-step debbuger\n"
+		"       --noop-stub     Treat ecall stub as noop.\n"
 		"       --version       Show version and license."
 		"\n\n"
 		"    FILENAME must be a path to a raw RISCV RV32I flat binary."
@@ -88,6 +90,11 @@ void parse_cmdline(int argc, char* argv[])
 			{
 				if (debug) { usage(); exit(EXIT_FAILURE); }
 				debug = true;
+			}
+			else if ( !strcmp(argv[i], "--noop-stub") )
+			{
+				if (noopstub) { usage(); exit(EXIT_FAILURE); }
+				noopstub = true;
 			}
 			else if ( !strcmp(argv[i], "-m"))
 			{

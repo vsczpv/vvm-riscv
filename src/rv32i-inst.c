@@ -675,46 +675,52 @@ bool rv32i_inst_system(int inst, rv32i_hart_s* cpu)
 					puts("\033[32;01mProgram finished gracefully.\033[0m");
 					return true;
 				case 1:
-
-					char* buf = (char*) &cpu->ram.buf[cpu->regs[11]];
-					size_t size = cpu->regs[12];
-
-					if ((size + cpu->regs[11]) > cpu->ram.size)
+				{
+					if (!noopstub)
 					{
-						rv32i_error_oob("read", cpu->pc - 4);
-						rv32i_backtrace(cpu);
-						return true;
+						char* buf = (char*) &cpu->ram.buf[cpu->regs[11]];
+						size_t size = cpu->regs[12];
+
+						if ((size + cpu->regs[11]) > cpu->ram.size)
+						{
+							rv32i_error_oob("read", cpu->pc - 4);
+							rv32i_backtrace(cpu);
+							return true;
+						}
+
+						if (debug) system("clear");
+						fwrite(buf, (signed) size, 1, stdout);
+						if (debug) getchar();
 					}
-
-					if (debug) system("clear");
-					fwrite(buf, (signed) size, 1, stdout);
-					if (debug) getchar();
-
 					break;
+				}
 				case 2:
 				{
-					char* input = NULL;
 
-					if (debug) system("clear"), printf("\033[1;33mInput required:\033[0m\n");
-					scanf("%ms", &input);
-
-					if (!input) { perror("Fatal error on ECALL Read() scanf"); return true; }
-
-					int count = strlen(input);
-
-					if (count < cpu->regs[12]) cpu->regs[10] = count;
-					else cpu->regs[10] = cpu->regs[12];
-
-
-					if ((unsigned) ( cpu->regs[11] + cpu->regs[10]) > cpu->ram.size)
+					if (!noopstub)
 					{
-						rv32i_error_oob("write", cpu->pc - 4);
-						rv32i_backtrace(cpu);
-						return true;
-					}
+						char* input = NULL;
 
-					memcpy(&cpu->ram.buf[cpu->regs[11]], input, cpu->regs[10]);
+						if (debug) system("clear"), printf("\033[1;33mInput required:\033[0m\n");
+						scanf("%ms", &input);
 
+						if (!input) { perror("Fatal error on ECALL Read() scanf"); return true; }
+
+						int count = strlen(input);
+
+						if (count < cpu->regs[12]) cpu->regs[10] = count;
+						else cpu->regs[10] = cpu->regs[12];
+
+
+						if ((unsigned) ( cpu->regs[11] + cpu->regs[10]) > cpu->ram.size)
+						{
+							rv32i_error_oob("write", cpu->pc - 4);
+							rv32i_backtrace(cpu);
+							return true;
+						}
+
+						memcpy(&cpu->ram.buf[cpu->regs[11]], input, cpu->regs[10]);
+					} else { cpu->regs[10] = 0; }
 					break;
 				}
 				default:
