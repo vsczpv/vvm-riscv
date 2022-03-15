@@ -6,6 +6,7 @@ INCLUDE =	include
 
 CC =		cc
 AS =		riscv32-elf-as
+ASLD =          riscv32-elf-ld
 OBJCP =		riscv32-elf-objcopy
 OPT_CARGS :=
 CARGS = 	$(OPT_CARGS) -I$(INCLUDE) -DVERSION='$(VERSION)' -Wall -Wextra -std=c2x -Wno-misleading-indentation -Wno-missing-field-initializers
@@ -24,14 +25,15 @@ run: vvm-riscv
 	./vvm-riscv sample/sample.bin
 
 clean:
-	rm -vf vvm-riscv sample/sample.o $(OBJS)
+	rm -vf vvm-riscv sample/sample.o sample/sample.bin $(OBJS)
 
 $(OBJS): $(BUILD)/%.o: $(SOURCE)/%.c $(HEADERS)
 	$(CC) -c $(CARGS) $< -o $@
 
 sample/sample.bin: sample/sample.S
-	$(AS) -fno-pic -R -march=rv32im sample/sample.S -o sample/sample.o
-	$(OBJCP) --dump-section .text=$@ sample/sample.o
+	$(AS) -R -march=rv32im sample/sample.S -o sample/sample.o
+	$(ASLD) sample/sample.o sample/sample.ld -o sample/sample.out
+	$(OBJCP) --dump-section .text=$@ sample/sample.out
 
 vvm-riscv: builddir sample/sample.bin $(OBJS)
 	$(CC) $(CARGS) $(OBJS) -o $@
