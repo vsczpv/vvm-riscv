@@ -29,10 +29,10 @@
 
 // TODO: Check later; I changed some stuff with instruction loading and this macro is probably borked
 #define rv32i_setinst(cpu, index, val)             \
-	(cpu)->ram.buf[index+0] = (val >> 8)  & 0xff; \
-	(cpu)->ram.buf[index+1] = (val >> 0)  & 0xff; \
-	(cpu)->ram.buf[index+2] = (val >> 24) & 0xff; \
-	(cpu)->ram.buf[index+3] = (val >> 16) & 0xff;
+	(cpu)->ram.buf[index+0] = (val >> 0)  & 0xff; \
+	(cpu)->ram.buf[index+1] = (val >> 8)  & 0xff; \
+	(cpu)->ram.buf[index+2] = (val >> 16) & 0xff; \
+	(cpu)->ram.buf[index+3] = (val >> 24) & 0xff;
 
 #define rv32i_getword(cpu, index)      \
 	((cpu)->ram.buf[index+0] << 24) | \

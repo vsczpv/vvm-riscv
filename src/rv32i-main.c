@@ -32,6 +32,8 @@
 #include "rv32i-macro.h"
 #include "rv32i-error.h"
 
+#include "rv32i-inst.h"
+
 char* filename = NULL;
 int ramamnt = 16;
 

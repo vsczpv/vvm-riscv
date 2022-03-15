@@ -27,6 +27,7 @@
 #include "rv32i-inst.h"
 #include "rv32i-misc.h"
 #include "rv32i-error.h"
+#include "rv32i-backtrace.h"
 
 bool rv32i_invalassert(uint32_t inst, uint32_t pc)
 {
@@ -184,7 +185,7 @@ bool rv32i_inst_load(int inst, rv32i_hart_s* cpu)
 		{
 
 			rv32i_error_inval("LOAD ", param.funct3, inst, cpu->pc - 4);
-			rv32i_error_backtrace(*cpu);
+			rv32i_backtrace(cpu);
 			return true;
 		}
 	}
@@ -196,7 +197,7 @@ bool rv32i_inst_loadfp(int inst, rv32i_hart_s* cpu)
 {
 
 	rv32i_error_inst_noimpl("LOAD-FP ", inst, cpu->pc);
-	rv32i_error_backtrace(*cpu);
+	rv32i_backtrace(cpu);
 
 	return true;
 }
@@ -205,7 +206,7 @@ bool rv32i_inst_custom0(int inst, rv32i_hart_s* cpu)
 {
 
 	rv32i_error_inst_noimpl("CUSTOM0 ", inst, cpu->pc);
-	rv32i_error_backtrace(*cpu);
+	rv32i_backtrace(cpu);
 
 	return true;
 }
@@ -220,7 +221,7 @@ bool rv32i_inst_miscmem(int inst, rv32i_hart_s* cpu)
 	cpu->pc += 4;
 
 //	rv32i_error_inst_noimpl("MISC-MEM ", inst, cpu->pc - 4);
-//	rv32i_error_backtrace(*cpu);
+//	rv32i_backtrace(cpu);
 
 	return false;
 }
@@ -271,7 +272,7 @@ bool rv32i_inst_opimm(int inst, rv32i_hart_s* cpu)
 			if (immd115)
 			{
 				rv32i_error_inval("SSLI ", immd115, inst, cpu->pc - 4);
-				rv32i_error_backtrace(*cpu);
+				rv32i_backtrace(cpu);
 				return true;
 			}
 			cpu->regs[param.rd] = cpu->regs[param.rs1] << (param.immd & 0b11111);
@@ -285,7 +286,7 @@ bool rv32i_inst_opimm(int inst, rv32i_hart_s* cpu)
 				cpu->regs[param.rd] = (signed) cpu->regs[param.rs1] >> (signed) (param.immd & 0b11111);
 			} else if (immd115) {
 				rv32i_error_inval("SRLI ", immd115, inst, cpu->pc - 4);
-				rv32i_error_backtrace(*cpu);
+				rv32i_backtrace(cpu);
 				return true;
 			} else {
 				cpu->regs[param.rd] = cpu->regs[param.rs1] >> (param.immd & 0b11111);
@@ -295,7 +296,7 @@ bool rv32i_inst_opimm(int inst, rv32i_hart_s* cpu)
 		default:
 		{
 			rv32i_error_inval("OP-IMM ", param.funct3, inst, cpu->pc - 4);
-			rv32i_error_backtrace(*cpu);
+			rv32i_backtrace(cpu);
 			return true;
 		}
 	}
@@ -318,7 +319,7 @@ bool rv32i_inst_auipc(int inst, rv32i_hart_s* cpu)
 bool rv32i_inst_opimm32(int inst, rv32i_hart_s* cpu)
 {
 	rv32i_error_inst_noimpl("OP-IMM-32 ", inst, cpu->pc);
-	rv32i_error_backtrace(*cpu);
+	rv32i_backtrace(cpu);
 	return true;
 }
 
@@ -351,7 +352,7 @@ bool rv32i_inst_store(int inst, rv32i_hart_s* cpu)
 		default:
 		{
 			rv32i_error_inval("STORE ", param.funct3, inst, cpu->pc - 4);
-			rv32i_error_backtrace(*cpu);
+			rv32i_backtrace(cpu);
 			return true;
 		}
 	}
@@ -363,14 +364,14 @@ bool rv32i_inst_store(int inst, rv32i_hart_s* cpu)
 bool rv32i_inst_storefp(int inst, rv32i_hart_s* cpu)
 {
 	rv32i_error_inst_noimpl("STORE-FP ", inst, cpu->pc);
-	rv32i_error_backtrace(*cpu);
+	rv32i_backtrace(cpu);
 	return true;
 }
 
 bool rv32i_inst_custom1(int inst, rv32i_hart_s* cpu)
 {
 	rv32i_error_inst_noimpl("CUSTOM1 ", inst, cpu->pc);
-	rv32i_error_backtrace(*cpu);
+	rv32i_backtrace(cpu);
 	return true;
 }
 
@@ -378,7 +379,7 @@ bool rv32i_inst_amo(int inst, rv32i_hart_s* cpu)
 {
 
 	rv32i_error_inst_noimpl("AMO ", inst, cpu->pc);
-	rv32i_error_backtrace(*cpu);
+	rv32i_backtrace(cpu);
 	return true;
 }
 
@@ -407,7 +408,7 @@ bool rv32i_inst_op(int inst, rv32i_hart_s* cpu)
 			default:
 			{
 				rv32i_error_inval("OP 40", param.funct3, inst, cpu->pc - 4);
-				rv32i_error_backtrace(*cpu);
+				rv32i_backtrace(cpu);
 				return true;
 			}
 		}
@@ -458,7 +459,7 @@ bool rv32i_inst_op(int inst, rv32i_hart_s* cpu)
 		}
 	} else {
 		rv32i_error_inval2("OP ", param.funct7, param.funct3, inst, cpu->pc - 4);
-		rv32i_error_backtrace(*cpu);
+		rv32i_backtrace(cpu);
 		return true;
 	}
 
@@ -481,56 +482,56 @@ bool rv32i_inst_lui(int inst, rv32i_hart_s* cpu)
 bool rv32i_inst_op32(int inst, rv32i_hart_s* cpu)
 {
 	rv32i_error_inst_noimpl("OP-32 ", inst, cpu->pc);
-	rv32i_error_backtrace(*cpu);
+	rv32i_backtrace(cpu);
 	return true;
 }
 
 bool rv32i_inst_madd(int inst, rv32i_hart_s* cpu)
 {
 	rv32i_error_inst_noimpl("MADD ", inst, cpu->pc);
-	rv32i_error_backtrace(*cpu);
+	rv32i_backtrace(cpu);
 	return true;
 }
 
 bool rv32i_inst_msub(int inst, rv32i_hart_s* cpu)
 {
 	rv32i_error_inst_noimpl("MSUB ", inst, cpu->pc);
-	rv32i_error_backtrace(*cpu);
+	rv32i_backtrace(cpu);
 	return true;
 }
 
 bool rv32i_inst_nmsub(int inst, rv32i_hart_s* cpu)
 {
 	rv32i_error_inst_noimpl("NMSUB ", inst, cpu->pc);
-	rv32i_error_backtrace(*cpu);
+	rv32i_backtrace(cpu);
 	return true;
 }
 
 bool rv32i_inst_nmadd(int inst, rv32i_hart_s* cpu)
 {
 	rv32i_error_inst_noimpl("NMADD ", inst, cpu->pc);
-	rv32i_error_backtrace(*cpu);
+	rv32i_backtrace(cpu);
 	return true;
 }
 
 bool rv32i_inst_opfp(int inst, rv32i_hart_s* cpu)
 {
 	rv32i_error_inst_noimpl("OP-FP ", inst, cpu->pc);
-	rv32i_error_backtrace(*cpu);
+	rv32i_backtrace(cpu);
 	return true;
 }
 
 bool rv32i_inst_reserved0(int inst, rv32i_hart_s* cpu)
 {
 	rv32i_error_inval_nosubtype("RESERVED0", inst, cpu->pc);
-	rv32i_error_backtrace(*cpu);
+	rv32i_backtrace(cpu);
 	return true;
 }
 
 bool rv32i_inst_custom2(int inst, rv32i_hart_s* cpu)
 {
 	rv32i_error_inst_noimpl("CUSTOM2 ", inst, cpu->pc);
-	rv32i_error_backtrace(*cpu);
+	rv32i_backtrace(cpu);
 	return true;
 }
 
@@ -544,7 +545,7 @@ bool rv32i_inst_branch(int inst, rv32i_hart_s* cpu)
 	if (param.immd & 0b11)
 	{
 		rv32i_error_mis_jump("BRANCH ", param.immd, inst, cpu->pc - 4);
-		rv32i_error_backtrace(*cpu);
+		rv32i_backtrace(cpu);
 		return true;
 	}
 
@@ -583,7 +584,7 @@ bool rv32i_inst_branch(int inst, rv32i_hart_s* cpu)
 		default:
 		{
 			rv32i_error_inval("BRANCH ", param.funct3, inst, cpu->pc - 4);
-			rv32i_error_backtrace(*cpu);
+			rv32i_backtrace(cpu);
 			return true;
 		}
 	}
@@ -599,7 +600,7 @@ bool rv32i_inst_jalr(int inst, rv32i_hart_s* cpu)
 	if (param.funct3)
 	{
 		rv32i_error_inval("JARL ", param.funct3, inst, cpu->pc);
-		rv32i_error_backtrace(*cpu);
+		rv32i_backtrace(cpu);
 		return true;
 	}
 
@@ -610,7 +611,7 @@ bool rv32i_inst_jalr(int inst, rv32i_hart_s* cpu)
 	if (immd & 0b11)
 	{
 		rv32i_error_mis_jump("JARL ", immd, inst, cpu->pc);
-		rv32i_error_backtrace(*cpu);
+		rv32i_backtrace(cpu);
 		return true;
 	}
 
@@ -622,7 +623,7 @@ bool rv32i_inst_jalr(int inst, rv32i_hart_s* cpu)
 bool rv32i_inst_reserved1(int inst, rv32i_hart_s* cpu)
 {
 	rv32i_error_inval_nosubtype("RESERVED1", inst, cpu->pc);
-	rv32i_error_backtrace(*cpu);
+	rv32i_backtrace(cpu);
 	return true;
 }
 
@@ -634,7 +635,7 @@ bool rv32i_inst_jal(int inst, rv32i_hart_s* cpu)
 	if (param.immd & 0b11)
 	{
 		rv32i_error_mis_jump("JAL ", param.immd, inst, cpu->pc);
-		rv32i_error_backtrace(*cpu);
+		rv32i_backtrace(cpu);
 		return true;
 	}
 
@@ -659,7 +660,7 @@ bool rv32i_inst_system(int inst, rv32i_hart_s* cpu)
 	if (param.funct3 != RV32I_OPCODE_SYSTEM_PRIV || param.rd || param.rs1)
 	{
 		rv32i_error_inval("SYSTEM ", param.funct3, inst, cpu->pc - 4);
-		rv32i_error_backtrace(*cpu);
+		rv32i_backtrace(cpu);
 		return true;
 	}
 
@@ -680,7 +681,7 @@ bool rv32i_inst_system(int inst, rv32i_hart_s* cpu)
 					if ((size + cpu->regs[11]) > cpu->ram.size)
 					{
 						rv32i_error_oob("read", cpu->pc - 4);
-						rv32i_error_backtrace(*cpu);
+						rv32i_backtrace(cpu);
 						return true;
 					}
 
@@ -711,21 +712,23 @@ bool rv32i_inst_system(int inst, rv32i_hart_s* cpu)
 						"Invalid built-in system call: \033[1m0x%08x\033[0m. Instruction \033[1m0x%08x\033[0m, program counter \033[1m0x%08x\033[0m.\n",
 						__FILE__, __LINE__, __func__, cpu->regs[2], inst, cpu->pc - 4
 					);
-					rv32i_error_backtrace(*cpu);
+					rv32i_backtrace(cpu);
 					return true;
 			}
 			break;
 		}
 		case RV32I_OPCODE_SYSTEM_PRIV_EBREAK:
 		{
-			rv32i_error_backtrace(*cpu);
+			cpu->pc -= 4;
+			rv32i_backtrace(cpu);
+			cpu->pc += 4;
 			if (getchar() == '\n') getchar();
 			break;
 		}
 		default:
 		{
 			rv32i_error_inval2("SYSTEM ", param.immd, 0, inst, cpu->pc - 4);
-			rv32i_error_backtrace(*cpu);
+			rv32i_backtrace(cpu);
 			return true;
 		}
 	}
@@ -736,14 +739,14 @@ bool rv32i_inst_system(int inst, rv32i_hart_s* cpu)
 bool rv32i_inst_reserved2(int inst, rv32i_hart_s* cpu)
 {
 	rv32i_error_inval_nosubtype("RESERVED2", inst, cpu->pc);
-	rv32i_error_backtrace(*cpu);
+	rv32i_backtrace(cpu);
 	return true;
 }
 
 bool rv32i_inst_custom3(int inst, rv32i_hart_s* cpu)
 {
 	rv32i_error_inval_nosubtype("CUSTOM3", inst, cpu->pc);
-	rv32i_error_backtrace(*cpu);
+	rv32i_backtrace(cpu);
 	return true;
 }
 
