@@ -541,8 +541,6 @@ bool rv32i_inst_branch(int inst, rv32i_hart_s* cpu)
 
 	rv32i_inst_param param = rv32i_parse_btype(inst);
 
-	cpu->pc += 4;
-
 	if (param.immd & 0b11)
 	{
 		rv32i_error_mis_jump("BRANCH ", param.immd, inst, cpu->pc - 4);
@@ -555,31 +553,37 @@ bool rv32i_inst_branch(int inst, rv32i_hart_s* cpu)
 		case RV32I_OPCODE_BRANCH_BEQ:
 		{
 			if (cpu->regs[param.rs1] == cpu->regs[param.rs2]) cpu->pc += (signed) param.immd;
+			else cpu->pc += 4;
 			break;
 		}
 		case RV32I_OPCODE_BRANCH_BNE:
 		{
 			if (cpu->regs[param.rs1] != cpu->regs[param.rs2]) cpu->pc += (signed) param.immd;
+			else cpu->pc += 4;
 			break;
 		}
 		case RV32I_OPCODE_BRANCH_BLT:
 		{
 			if (cpu->regs[param.rs1] < cpu->regs[param.rs2]) cpu->pc += (signed) param.immd;
+			else cpu->pc += 4;
 			break;
 		}
 		case RV32I_OPCODE_BRANCH_BGE:
 		{
 			if (cpu->regs[param.rs1] >= cpu->regs[param.rs2]) cpu->pc += (signed) param.immd;
+			else cpu->pc += 4;
 			break;
 		}
 		case RV32I_OPCODE_BRANCH_BLTU:
 		{
 			if ((unsigned) cpu->regs[param.rs1] < (unsigned) cpu->regs[param.rs2]) cpu->pc += (signed) param.immd;
+			else cpu->pc += 4;
 			break;
 		}
 		case RV32I_OPCODE_BRANCH_BGEU:
 		{
 			if ((unsigned) cpu->regs[param.rs1] >= (unsigned) cpu->regs[param.rs2]) cpu->pc += (signed) param.immd;
+			else cpu->pc += 4;
 			break;
 		}
 		default:
