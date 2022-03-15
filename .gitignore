@@ -1,0 +1,4 @@
+*.o
+vvm-riscv
+*.bin
+*.out
