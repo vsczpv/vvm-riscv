@@ -27,6 +27,7 @@
 #include "rv32i-inst.h"
 #include "rv32i-misc.h"
 #include "rv32i-error.h"
+#include "rv32i-backtrace.h"
 
 bool rv32i_iomap_init(rv32i_hart_s* cpu, uint32_t addr, uint32_t size, void (*callback)(rv32i_hart_s* cpu))
 {
@@ -88,11 +89,10 @@ void rv32i_hart_execute(rv32i_hart_s* cpu)
 
 		uint32_t inst = rv32i_getinst(cpu, cpu->pc);
 
-		if ( rv32i_invalassert(inst, cpu->pc) ) { rv32i_error_backtrace(*cpu); break; }
+		if ( rv32i_invalassert(inst, cpu->pc) ) { rv32i_backtrace(cpu); break; }
 
 		if ( rv32i_inst_getopcode(inst) > RV32I_OPCODE_CUSTOM3 ) { rv32i_error_malinst(inst, cpu->pc); break; }
 		if ( rv32i_inst_instructions[rv32i_inst_getopcode(inst)](inst, cpu) ) break;
-
 	}
 
 	return;

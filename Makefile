@@ -30,7 +30,7 @@ $(OBJS): $(BUILD)/%.o: $(SOURCE)/%.c $(HEADERS)
 	$(CC) -c $(CARGS) $< -o $@
 
 sample/sample.bin: sample/sample.S
-	$(AS) -fno-pic -R -march=rv32i sample/sample.S -o sample/sample.o
+	$(AS) -fno-pic -R -march=rv32im sample/sample.S -o sample/sample.o
 	$(OBJCP) --dump-section .text=$@ sample/sample.o
 
 vvm-riscv: builddir sample/sample.bin $(OBJS)

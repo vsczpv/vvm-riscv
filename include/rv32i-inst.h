@@ -161,4 +161,11 @@ bool rv32i_inst_system(int inst, rv32i_hart_s* cpu);
 bool rv32i_inst_reserved2(int inst, rv32i_hart_s* cpu);
 bool rv32i_inst_custom3(int inst, rv32i_hart_s* cpu);
 
+#define RV32I_RTYPE 0
+#define RV32I_ITYPE 1
+#define RV32I_STYPE 2
+#define RV32I_UTYPE 3
+#define RV32I_BTYPE 4
+#define RV32I_JTYPE 5
+
 #endif /* RV32I_INST_H_ */
