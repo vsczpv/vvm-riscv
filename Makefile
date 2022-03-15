@@ -25,7 +25,7 @@ run: vvm-riscv
 	./vvm-riscv sample/sample.bin
 
 clean:
-	rm -vf vvm-riscv sample/sample.o sample/sample.bin $(OBJS)
+	rm -vf vvm-riscv sample/sample.o sample/sample.bin sample/sample.out $(OBJS)
 
 $(OBJS): $(BUILD)/%.o: $(SOURCE)/%.c $(HEADERS)
 	$(CC) -c $(CARGS) $< -o $@
