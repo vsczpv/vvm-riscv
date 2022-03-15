@@ -36,6 +36,7 @@
 
 char* filename = NULL;
 int ramamnt = 16;
+bool debug = false;
 
 void usage(void)
 {
@@ -49,6 +50,7 @@ void usage(void)
 		"                       Default value is 16KiB.\n"
 		"\n"
 		"       -h, --help      Show this prompt.\n"
+		"       --debug         Step-by-step debbuger\n"
 		"       --version       Show version and license."
 		"\n\n"
 		"    FILENAME must be a path to a raw RISCV RV32I flat binary."
@@ -73,8 +75,8 @@ void version(void)
 void parse_cmdline(int argc, char* argv[])
 {
 
-	bool ramset  = false;
-	bool fileset = false;
+	bool ramset   = false;
+	bool fileset  = false;
 
 	if (argc > 1)
 	{
@@ -82,6 +84,11 @@ void parse_cmdline(int argc, char* argv[])
 		{
 			if ( !strcmp(argv[i], "-h") && !strcmp(argv[i], "--help") ) { usage(); exit(EXIT_SUCCESS); }
 			else if ( !strcmp(argv[i], "--version") ) { version(); exit(EXIT_SUCCESS); }
+			else if ( !strcmp(argv[i], "--debug") )
+			{
+				if (debug) { usage(); exit(EXIT_FAILURE); }
+				debug = true;
+			}
 			else if ( !strcmp(argv[i], "-m"))
 			{
 				if (ramset || i+1 >= argc) { usage(); exit(EXIT_FAILURE); }

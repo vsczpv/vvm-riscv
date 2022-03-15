@@ -31,7 +31,7 @@ $(OBJS): $(BUILD)/%.o: $(SOURCE)/%.c $(HEADERS)
 	$(CC) -c $(CARGS) $< -o $@
 
 sample/sample.bin: sample/sample.S
-	$(AS) -R -march=rv32im sample/sample.S -o sample/sample.o
+	$(AS) -R -march=rv32i sample/sample.S -o sample/sample.o
 	$(ASLD) sample/sample.o sample/sample.ld -o sample/sample.out
 	$(OBJCP) --dump-section .text=$@ sample/sample.out
 

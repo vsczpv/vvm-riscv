@@ -196,7 +196,7 @@ rv32i_mnemonic_string_s rv32i_backtrace_getmnemonic(uint32_t inst)
 				srai = false;
 				res.inst = details->nofunct_mnemonic;
 			} else if (opcode == RV32I_OPCODE_OPIMM) {
-				srai = param.immd & 0b10000000000;
+				srai = param.funct3 == RV32I_OPCODE_OPIMM_SRLISRAI ? param.immd & 0b10000000000 : false;
 				res.inst = srai ? details->funct7[param.funct3] : details->funct3[param.funct3];
 			} else if (opcode == RV32I_OPCODE_SYSTEM) {
 				if (param.funct3 != RV32I_OPCODE_SYSTEM_PRIV) res.inst = "?";
