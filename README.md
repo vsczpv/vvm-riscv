@@ -1,53 +1,63 @@
 # VVM-RISCV
 ---
-RISC-V emulator for RV32I architecture.
 
-Nearly up to Unprivileged-20191213 specification.
+vvm-riscv is a minimal RISC-V instruction-set-simulator/emulator oriented for educational and recreational purposes. It exclusively runs flat binaries and implements the Unprivileged-20191213 specification.
 
-# Compiling
+# Dependencies
 ---
-To compile run:
 
-`make all`
+The only compile time dependency is a C23 compiler.
+Tested compilers are: GCC 12.1.0, Clang 14.0.6 and cproc.
 
-To execute run:
+To compile the examples, you need the GNU RISCV64 toolchain (or compatible).
+More specifically you want the `riscv64-elf-*` series of binaries.
 
-`make run`
+# Compiling and Running
+---
+To compile, run:
 
-Or alternatively:
+`make`
 
-`./vvm-riscv sample/sample.bin`
+To execute the examples, run:
+
+ * For the User-Input example: `make example_userinput`
+ * For the Fibonacci example:  `make example_fibonacci`
+ * For the Debugger example:   `make example_debugger`
+
+Or alternatively, you can run invoke vvm-riscv manually:
+
+`./vvm-riscv [filename]`
 
 # Stub ECALL
 ---
 
-A stub ecall is implemented so that emulated programs can be interacted with.
+A couple of stub ecalls are implemented so that emulated programs can interact with the outside world.
 
 Three calls are present, that are selected with the a0 register, theirs arguments being passed in a1 and a2 respectively:
 
-* 0: Exit(). Ends the emulation
-* 1: Write(void* buf, size_t n). Writes buffer to stdout up to n bytes
-* 2: Read(void* dest, size_t max). Reads from stdin to dest up to max bytes. Excess is discarded. Amount read is returned in a0.
+* 0: `void exit()`. Ends the emulation
+* 1: `void write(void* buf, size_t n)`. Writes buffer to stdout up to n bytes
+* 2: `size_t read(void* dest, size_t max)`. Reads from stdin to dest up to max bytes. Excess is discarded. Amount read is returned in a0.
 
 # Nuances
 ---
 
-Invalid or missing instructions are treated as emulation errors as without the privileged spec being implemented it's impossible to catch them.
+Invalid or missing instructions are treated as emulation errors since without the privileged spec being implemented it's impossible to catch them.
 
-Programs are to be loaded on address 0, and with a default of 16KiB of memory.
-Out of bounds access stops the emulation. Memory can be increased.
+Programs are loaded at address 0, with a default of 16KiB of memory.
+Out of bounds access stops the emulation.
 
 Invalid or unimplemented instructions are treated as "Unknown" by the backtrace dissasembler.
 
-Programs are to be loaded as flat binaries. Assuming the GNU toolchain, you can do:
+As cited, programs are to be loaded as flat binaries. Assuming the GNU toolchain, you can do:
 
-`riscv32-elf-as -R -march=rv32i FILE.S -o FILE.o`
+`riscv64-elf-as -R -march=rv32i -mabi=ilp32 FILE.S -o FILE.o`
 
-`riscv32-elf-ld FILE.o FILE.ld -o FILE.out`
+`riscv64-elf-ld FILE.o -T FILE.ld -o FILE.out --oformat=elf32-littleriscv`
 
-`riscv32-elf-objcopy --dump-section .text=FILE.bin FILE.out`
+`riscv64-elf-objcopy --dump-section .text=FILE.bin FILE.out`
 
-Linker script is used to relocate everything to address 0, example is provided inside sample/.
+The linker script is used to relocate everything to address 0; some linker script examples are provided inside samples/.
 
 # Full usage
 ---
@@ -116,7 +126,7 @@ Linker script is used to relocate everything to address 0, example is provided i
 
 Written by Vinícius Schütz Piva <vinicius.vsczpv@outlook.com>.
 
-Started on 16/01/2022, last updated 15/03/2022.
+Started on 16/01/2022, last updated 15/07/2022.
 
 # License
 ---
