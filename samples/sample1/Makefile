@@ -1,9 +1,14 @@
 .PHONY: run clean
 
+default: sample.bin
+
 clean:
 	rm -vf sample.bin sample.out sample.o
 
 run: sample.bin
+	../../vvm-riscv sample.bin
+
+run_debug: sample.bin
 	../../vvm-riscv --debug sample.bin
 
 sample.bin: sample.ld sample.S
