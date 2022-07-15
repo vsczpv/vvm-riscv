@@ -620,7 +620,7 @@ bool rv32i_inst_jalr(int inst, rv32i_hart_s* cpu)
 		return true;
 	}
 
-	cpu->pc += (signed) immd;
+	cpu->pc = (signed) immd;
 
 	return false;
 }
