@@ -58,4 +58,6 @@
 
 #define rv32i_setbyte(cpu, index, val) (cpu)->ram.buf[index] = val & 0xff;
 
+bool rv32i_oob_addr(rv32i_hart_s* cpu, uint32_t addr);
+
 #endif /* R32I_EMU_H_ */

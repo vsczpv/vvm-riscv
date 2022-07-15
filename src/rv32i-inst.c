@@ -150,6 +150,7 @@ bool rv32i_inst_load(int inst, rv32i_hart_s* cpu)
 	if (!param.rd) return false;
 
 	uint32_t addr = cpu->regs[param.rs1] + (signed) param.immd;
+	if (rv32i_oob_addr(cpu, addr)) { rv32i_error_oob("LOAD", addr); return true; }
 
 	switch (param.funct3)
 	{
@@ -332,6 +333,7 @@ bool rv32i_inst_store(int inst, rv32i_hart_s* cpu)
 	cpu->pc += 4;
 
 	uint32_t addr = cpu->regs[param.rs1] + (signed) param.immd;
+	if (rv32i_oob_addr(cpu, addr)) { rv32i_error_oob("STORE", addr); return true; }
 
 	switch (param.funct3)
 	{
