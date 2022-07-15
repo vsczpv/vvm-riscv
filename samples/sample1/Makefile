@@ -7,6 +7,6 @@ run: sample.bin
 	../../vvm-riscv --debug sample.bin
 
 sample.bin:
-	riscv32-elf-as -R -march=rv32i sample.S -o sample.o
-	riscv32-elf-ld sample.o sample.ld -o sample.out
-	riscv32-elf-objcopy --dump-section .text=sample.bin sample.out
+	riscv64-elf-as -R -march=rv32i -mabi=ilp32 sample.S -o sample.o
+	riscv64-elf-ld sample.o -T sample.ld -o sample.out --oformat=elf32-littleriscv
+	riscv64-elf-objcopy --dump-section .text=sample.bin sample.out
