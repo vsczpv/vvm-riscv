@@ -26,8 +26,14 @@ clean:
 $(OBJS): $(BUILD)/%.o: $(SOURCE)/%.c $(HEADERS)
 	$(CC) -c $(CARGS) $< -o $@
 
-sample1: vvm-riscv
+example_userinput: vvm-riscv
 	make -C samples/sample1 run
+
+example_debugger:  vvm-riscv
+	make -C samples/sample1 run_debug
+
+example_fibonacci: vvm-riscv
+	make -C samples/sample2 run
 
 vvm-riscv: builddir $(OBJS)
 	$(CC) $(CARGS) $(OBJS) -o $@
