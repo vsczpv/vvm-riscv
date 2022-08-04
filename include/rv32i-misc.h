@@ -21,6 +21,11 @@
 #ifndef R32I_MISC_H_
 #define R32I_MISC_H_
 
+// VERSION gets defined via the Makefile
+#ifndef VERSION
+#define VERSION "nonreleased"
+#endif
+
 #define rv32i_getinst(cpu, index)       \
 	((cpu)->ram.buf[index+0] << 0)  |  \
 	((cpu)->ram.buf[index+1] << 8)  |  \

@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include <unistd.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
@@ -35,9 +36,9 @@
 #include "rv32i-inst.h"
 
 char* filename = NULL;
-int ramamnt = 16;
-bool debug = false;
-bool noopstub = false;
+int   ramamnt  = 16;
+bool  debug    = false;
+bool  noopstub = false;
 
 void usage(void)
 {
