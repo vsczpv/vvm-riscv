@@ -26,9 +26,9 @@
 
 #include "rv32i-emu.h"
 #include "rv32i-inst.h"
-#include "rv32i-misc.h"
 #include "rv32i-error.h"
 #include "rv32i-backtrace.h"
+#include "rv32i-mem.h"
 
 bool rv32i_invalassert(uint32_t inst, uint32_t pc)
 {

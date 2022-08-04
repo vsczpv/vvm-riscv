@@ -23,8 +23,8 @@
 #include <stdbool.h>
 
 #include "rv32i-inst.h"
-#include "rv32i-misc.h"
 #include "rv32i-backtrace.h"
+#include "rv32i-mem.h"
 
 char* rv32i_mnemonic_registers[32] =
 {

@@ -25,9 +25,9 @@
 
 #include "rv32i-emu.h"
 #include "rv32i-inst.h"
-#include "rv32i-misc.h"
 #include "rv32i-error.h"
 #include "rv32i-backtrace.h"
+#include "rv32i-mem.h"
 
 bool rv32i_iomap_init(rv32i_hart_s* cpu, uint32_t addr, uint32_t size, void (*callback)(rv32i_hart_s* cpu))
 {

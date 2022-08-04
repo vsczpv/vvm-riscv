@@ -29,7 +29,6 @@
 #include <errno.h>
 
 #include "rv32i-emu.h"
-#include "rv32i-misc.h"
 #include "rv32i-macro.h"
 #include "rv32i-error.h"
 

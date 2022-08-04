@@ -24,6 +24,11 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+// VERSION is defined in the Makefile
+#ifndef VERSION
+#define VERSION "unreleased"
+#endif
+
 #define IOMAP_HARDCAP 32
 #define KiB sizeof(uint8_t)*1024
 
