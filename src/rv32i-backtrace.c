@@ -295,7 +295,7 @@ void rv32i_backtrace(rv32i_hart_s* cpu)
 	for (unsigned int i = cpu->pc-32; i != cpu->pc+36; i+=4)
 	{
 
-		if (i >= cpu->ram.size) continue;
+		if ( rv32i_oob_addr(cpu, i) ) continue;
 		bool cur = i == cpu->pc ? true : false;
 		rv32i_mnemonic_string_s ins = rv32i_backtrace_getmnemonic(rv32i_getinst(cpu, i));
 

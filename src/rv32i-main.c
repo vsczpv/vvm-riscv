@@ -129,8 +129,8 @@ int main(int argc, char* argv[])
 
 	rv32i_hart_s cpu = rv32i_hart_init(ramamnt*KiB);
 
-	if (file.st.st_size > cpu.ram.size) { rv32i_error_oom(file.st.st_size, cpu.ram.size); return EXIT_FAILURE; };
-	memcpy(cpu.ram.buf, file.buf, file.st.st_size);
+	if (file.st.st_size > cpu.iomaps[0].map.size) { rv32i_error_oom(file.st.st_size, cpu.iomaps[0].map.size); return EXIT_FAILURE; };
+	memcpy(cpu.iomaps[0].map.buf, file.buf, file.st.st_size);
 
 	rv32i_hart_execute(&cpu);
 

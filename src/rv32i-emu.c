@@ -29,26 +29,32 @@
 #include "rv32i-backtrace.h"
 #include "rv32i-mem.h"
 
-bool rv32i_iomap_init(rv32i_hart_s* cpu, uint32_t addr, uint32_t size, void (*callback)(rv32i_hart_s* cpu))
+bool rv32i_iomap_init(rv32i_hart_s* cpu)
+{
+
+	cpu->iomaps = (rv32i_iomap_s*) malloc (sizeof(rv32i_iomap_s)*IOMAP_HARDCAP);
+
+	return cpu->iomaps ? false : true;
+}
+
+bool rv32i_iomap_add(rv32i_hart_s* cpu, uint32_t addr, uint32_t size, void (*callback)(rv32i_hart_s* cpu), bool memback)
 {
 
 	if (cpu->iomap_amnt == IOMAP_HARDCAP) return true;
 
-	if (addr <= cpu->ram.size) return true;
-
+	/* Check for overlap */
 	for (uint32_t i = 0; i < cpu->iomap_amnt; i++)
-		if (addr >= cpu->iomaps[i]->start_addr && addr <= ( cpu->iomaps[i]->start_addr + cpu->iomaps[i]->map.size )) return true;
+		if (addr >= cpu->iomaps[i].start_addr && addr <= ( cpu->iomaps[i].start_addr + cpu->iomaps[i].map.size )) return true;
 
-	/* NOTE: These get free()d on rv32i_hart_destroy() */
+	uint32_t curio     = (++(cpu->iomap_amnt)) - 1;
 
-	uint32_t curio    = (++(cpu->iomap_amnt)) - 1;
-	cpu->iomaps[curio] = (rv32i_iomap_s*) malloc(sizeof(rv32i_iomap_s));
+	cpu->iomaps[curio].start_addr = addr;
+	cpu->iomaps[curio].map.size   = size;
 
-	cpu->iomaps[curio]->start_addr = addr;
-	cpu->iomaps[curio]->map.size = size;
-	cpu->iomaps[curio]->map.buf = (uint8_t*) malloc(sizeof(uint8_t)*size);
+	if (memback) cpu->iomaps[curio].map.buf = (uint8_t*) malloc(sizeof(uint8_t)*size);
 
-	cpu->iomaps[curio]->callback = callback;
+	cpu->iomaps[curio].callback      = callback;
+	cpu->iomaps[curio].memory_backed = memback;
 
 	return false;
 
@@ -60,10 +66,11 @@ rv32i_hart_s rv32i_hart_init(uint32_t total_ram)
 	/* cpu.regs also gets initialized here as a side effect. */
 	rv32i_hart_s cpu = { 0 };
 
-	cpu.ram.size = total_ram;
-	cpu.ram.buf  = (uint8_t*) malloc(sizeof(uint8_t)*total_ram);
+	rv32i_iomap_init(&cpu);
 
-	cpu.pc   = 0;
+	rv32i_iomap_add(&cpu, 0, total_ram, NULL, true);
+
+//	cpu.pc = 0;
 
 	return cpu;
 }
@@ -71,10 +78,9 @@ rv32i_hart_s rv32i_hart_init(uint32_t total_ram)
 void rv32i_hart_destroy(rv32i_hart_s cpu)
 {
 
-	free(cpu.ram.buf);
+	for (uint32_t i = 0; i < cpu.iomap_amnt; i++) free(cpu.iomaps[i].map.buf);
 
-	for (uint32_t i = 0; i < cpu.iomap_amnt; i++)
-		{ free(cpu.iomaps[i]->map.buf); free(cpu.iomaps[i]); }
+	free(cpu.iomaps);
 
 	return;
 }
@@ -85,7 +91,7 @@ void rv32i_hart_execute(rv32i_hart_s* cpu)
 	for (;;)
 	{
 
-		if ( cpu->pc > cpu->ram.size ) { rv32i_error_oob("execution", cpu->pc); break; }
+		if ( rv32i_oob_addr(cpu, cpu->pc) ) { rv32i_error_oob("execution", cpu->pc); break; }
 
 		uint32_t inst = rv32i_getinst(cpu, cpu->pc);
 

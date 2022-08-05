@@ -25,16 +25,18 @@
 
 #include "rv32i-emu.h"
 
-uint32_t rv32i_getinst(rv32i_hart_s* cpu, uint32_t index);
-void     rv32i_setinst(rv32i_hart_s* cpu, uint32_t index, uint32_t val);
+uint8_t* rv32i_mem_trueaddr(rv32i_hart_s* cpu, uint32_t addr);
 
-uint32_t rv32i_getword(rv32i_hart_s* cpu, uint32_t index);
-uint32_t rv32i_gethalf(rv32i_hart_s* cpu, uint32_t index);
-uint32_t rv32i_getbyte(rv32i_hart_s* cpu, uint32_t index);
+uint32_t  rv32i_getinst(rv32i_hart_s* cpu, uint32_t index);
+void      rv32i_setinst(rv32i_hart_s* cpu, uint32_t index, uint32_t val);
 
-void     rv32i_setword(rv32i_hart_s* cpu, uint32_t index, uint32_t val);
-void     rv32i_sethalf(rv32i_hart_s* cpu, uint32_t index, uint32_t val);
-void     rv32i_setbyte(rv32i_hart_s* cpu, uint32_t index, uint32_t val);
+uint32_t  rv32i_getword(rv32i_hart_s* cpu, uint32_t index);
+uint32_t  rv32i_gethalf(rv32i_hart_s* cpu, uint32_t index);
+uint32_t  rv32i_getbyte(rv32i_hart_s* cpu, uint32_t index);
+
+void      rv32i_setword(rv32i_hart_s* cpu, uint32_t index, uint32_t val);
+void      rv32i_sethalf(rv32i_hart_s* cpu, uint32_t index, uint32_t val);
+void      rv32i_setbyte(rv32i_hart_s* cpu, uint32_t index, uint32_t val);
 
 bool rv32i_oob_addr(rv32i_hart_s* cpu, uint32_t addr);
 
