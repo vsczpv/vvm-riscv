@@ -54,10 +54,16 @@ typedef struct rv32i_hart_s
 	uint32_t pc;
 } rv32i_hart_s;
 
+typedef struct rv32i_cmdline_chooseniomap_s
+{
+	uint32_t addr;
+	size_t   size;
+} rv32i_cmdline_chooseniomap_s;
+
 bool rv32i_iomap_init(rv32i_hart_s* cpu);
 bool rv32i_iomap_add(rv32i_hart_s* cpu, uint32_t addr, uint32_t size, void (*callback)(rv32i_hart_s* cpu), bool memback);
 
-rv32i_hart_s rv32i_hart_init(uint32_t total_ram);
+rv32i_hart_s rv32i_hart_init(uint32_t total_ram, rv32i_cmdline_chooseniomap_s choosen_iomaps[IOMAP_HARDCAP], int choosen_iomaps_amnt, bool is_using_iomaps);
 void rv32i_hart_destroy(rv32i_hart_s cpu);
 
 void rv32i_hart_execute(rv32i_hart_s* cpu);

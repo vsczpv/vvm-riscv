@@ -35,28 +35,37 @@
 
 #include "rv32i-inst.h"
 
-char* filename = NULL;
-int   ramamnt  = 16;
-bool  debug    = false;
-bool  noopstub = false;
+static char* filename      = NULL;
+static int   ramamnt       = 16;
+	   bool  debug         = false;
+       bool  noopstub      = false;
+static bool  is_using_mmap = false;
+
+static rv32i_cmdline_chooseniomap_s choosen_iomaps[IOMAP_HARDCAP] = { 0 };
+static int                          choosen_iomaps_amnt           = 0;
 
 void usage(void)
 {
 	puts
 	(
 		"\n"
-		"Usage: vvm-riscv [-m <ram>] [-h|--help] [--debug] [--noop-stub] [--version] FILENAME"
+		"Usage: vvm-riscv [-m <ram>|--memory-map <addr> <size>] [-h|--help] [--debug] [--noop-stub] [--version] FILENAME"
 		"\n\n"
-		"       -m <ram>        Specify amount of ram in kibibytes (1024).\n"
-		"                       Value cannot be 0.\n"
-		"                       Default value is 16KiB."
+		"       -m <ram>                    Specify amount of ram in kibibytes (1024).\n"
+		"                                   Value cannot be 0.\n"
+		"                                   Default value is 16KiB."
 		"\n\n"
-		"       -h, --help      Show this prompt.\n"
-		"       --debug         Step-by-step debbuger\n"
-		"       --noop-stub     Treat ecall stub as noop.\n"
-		"       --version       Show version and license."
+		"       --memory-map <addr> <size>  Specify a new memory map at <addr> with <size> kibibytes.\n"
+		"                                   Size cannot be 0.\n"
+		"                                   Cannot be used with -m."
 		"\n\n"
-		"    FILENAME must be a path to a raw RISCV RV32I flat binary."
+		"       -h, --help                  Show this prompt.\n"
+		"       --debug                     Step-by-step debbuger\n"
+		"       --noop-stub                 Treat ecall stub as noop.\n"
+		"       --version                   Show version and license."
+		"\n\n"
+		"    FILENAME must be a path to a raw RISCV RV32I flat binary.\n"
+		"    Numbers can be any value readable by strtol(3) [0x1234, 1234, 01234]."
 		"\n"
 	);
 
@@ -97,12 +106,33 @@ void parse_cmdline(int argc, char* argv[])
 				if (noopstub) { usage(); exit(EXIT_FAILURE); }
 				noopstub = true;
 			}
+			else if ( !strcmp(argv[i], "--memory-map") )
+			{
+
+				if (ramset || i+2 >= argc) { usage(); exit(EXIT_FAILURE); }
+				is_using_mmap = true;
+
+				if (choosen_iomaps_amnt == IOMAP_HARDCAP) { rv32i_too_many_maps(); exit(EXIT_FAILURE); }
+
+				char* endptr;
+				uint32_t addr = strtol(argv[++i], &endptr, 0);
+				if (argv[i-1] == endptr) { usage(); exit(EXIT_FAILURE); }
+
+				size_t   size = strtol(argv[++i], NULL, 0) * KiB;
+				if (!size) { usage(); exit(EXIT_FAILURE); }
+
+				choosen_iomaps[choosen_iomaps_amnt].addr = addr;
+				choosen_iomaps[choosen_iomaps_amnt].size = size;
+
+				choosen_iomaps_amnt++;
+
+			}
 			else if ( !strcmp(argv[i], "-m"))
 			{
 				if (ramset || i+1 >= argc) { usage(); exit(EXIT_FAILURE); }
 				ramset = true;
-				ramamnt = strtol(argv[++i], NULL, 10);
-				if ((!ramamnt && errno == EINVAL) || !ramamnt) { usage(); exit(EXIT_FAILURE); }
+				ramamnt = strtol(argv[++i], NULL, 0);
+				if ((!ramamnt && errno == EINVAL) || !ramamnt || is_using_mmap) { usage(); exit(EXIT_FAILURE); }
 			}
 			else if (argv[i][0] == '-') { usage(); exit(EXIT_FAILURE); }
 			else
@@ -128,7 +158,7 @@ int main(int argc, char* argv[])
 	file.buf = (uint8_t*) mmap(NULL, file.st.st_size, PROT_READ, MAP_PRIVATE, file.fd, 0);
 	if (file.buf == MAP_FAILED) { rv32i_error_aintfile(filename); return EXIT_FAILURE; }
 
-	rv32i_hart_s cpu = rv32i_hart_init(ramamnt*PAGE_SIZE);
+	rv32i_hart_s cpu = rv32i_hart_init(ramamnt*PAGE_SIZE, choosen_iomaps, choosen_iomaps_amnt, is_using_mmap);
 
 	uint32_t prgmemsz = rv32i_mem_contiguous(&cpu, 0, file.st.st_size);
 	if ( prgmemsz < file.st.st_size )
@@ -137,7 +167,6 @@ int main(int argc, char* argv[])
 		return EXIT_FAILURE;
 	}
 
-//	memcpy(rv32i_mem_trueaddr(&cpu, 0), file.buf, file.st.st_size);
 	rv32i_mem_copyfromhost(&cpu, 0, file.buf, file.st.st_size);
 
 	rv32i_hart_execute(&cpu);

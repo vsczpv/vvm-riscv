@@ -60,7 +60,7 @@ bool rv32i_iomap_add(rv32i_hart_s* cpu, uint32_t addr, uint32_t size, void (*cal
 
 }
 
-rv32i_hart_s rv32i_hart_init(uint32_t total_ram)
+rv32i_hart_s rv32i_hart_init(uint32_t total_ram, rv32i_cmdline_chooseniomap_s choosen_iomaps[IOMAP_HARDCAP], int choosen_iomaps_amnt, bool is_using_iomaps)
 {
 
 	/* cpu.regs also gets initialized here as a side effect. */
@@ -68,25 +68,10 @@ rv32i_hart_s rv32i_hart_init(uint32_t total_ram)
 
 	rv32i_iomap_init(&cpu);
 
-//	rv32i_iomap_add(&cpu, 0, total_ram, NULL, true);
-	rv32i_iomap_add(&cpu, 0, total_ram/16, NULL, true);
-	rv32i_iomap_add(&cpu, 1024, total_ram/16 * 2, NULL, true);
-//	rv32i_iomap_add(&cpu, 2048, total_ram/16, NULL, true);
-	rv32i_iomap_add(&cpu, 3072, total_ram/16, NULL, true);
-	rv32i_iomap_add(&cpu, 4096, total_ram/16, NULL, true);
-	rv32i_iomap_add(&cpu, 5120, total_ram/16 * 3, NULL, true);
-//	rv32i_iomap_add(&cpu, 6144, total_ram/16, NULL, true);
-//	rv32i_iomap_add(&cpu, 7168, total_ram/16, NULL, true);
-	rv32i_iomap_add(&cpu, 8192, total_ram/16, NULL, true);
-	rv32i_iomap_add(&cpu, 9216, total_ram/16, NULL, true);
-	rv32i_iomap_add(&cpu, 10240, total_ram/16, NULL, true);
-//	rv32i_iomap_add(&cpu, 11264, total_ram/16, NULL, true);
-	rv32i_iomap_add(&cpu, 12288, total_ram/16, NULL, true);
-	rv32i_iomap_add(&cpu, 13312, total_ram/16, NULL, true);
-	rv32i_iomap_add(&cpu, 14336, total_ram/16, NULL, true);
-	rv32i_iomap_add(&cpu, 15360, total_ram/16, NULL, true);
-
-//	cpu.pc = 0;
+	if (!is_using_iomaps) rv32i_iomap_add(&cpu, 0, total_ram, NULL, true); else
+	{
+		for (int i = 0; i < choosen_iomaps_amnt; i++) rv32i_iomap_add(&cpu, choosen_iomaps[i].addr, choosen_iomaps[i].size, NULL, true);
+	}
 
 	return cpu;
 }

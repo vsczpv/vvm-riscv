@@ -21,6 +21,8 @@
 #ifndef RV32I_ERROR_H_
 #define RV32I_ERROR_H_
 
+#include "rv32i-emu.h"
+
 #define rv32i_error_inval(inst_name, subinst, inst, pc) fprintf \
 ( \
 	stderr, \
@@ -108,6 +110,14 @@
 	"\033[1;39m%s:%i: \033[31merror: \033[0mIn function \033[1m'%s'\033[0m: " \
 	"Not enough memory to run program: Need %lu bytes, have %u.\n", \
 	__FILE__, __LINE__, __func__, need, have \
+)
+
+#define rv32i_too_many_maps()  fprintf \
+( \
+	stderr, \
+	"\033[1;39m%s:%i: \033[31merror: \033[0mIn function \033[1m'%s'\033[0m: " \
+	"Too many memory maps, cannot exceed %i.\n", \
+	__FILE__, __LINE__, __func__, IOMAP_HARDCAP \
 )
 
 #endif // RV32I_ERROR_H_
