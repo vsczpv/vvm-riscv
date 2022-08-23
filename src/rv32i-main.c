@@ -29,6 +29,7 @@
 
 int main(int argc, char* argv[])
 {
+
 	rv32i_cmdline_s cmd = rv32i_parse_cmdline(argc, argv);
 
 	rv32i_posix_file_s file = rv32i_open_file(cmd);

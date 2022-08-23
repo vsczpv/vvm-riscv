@@ -77,6 +77,13 @@ typedef struct rv32i_posix_file_s
 	uint8_t* buf;
 } rv32i_posix_file_s;
 
+typedef struct rv32i_overlapping_iomap_offense_s
+{
+	bool offended;
+	rv32i_cmdline_chooseniomap_s a;
+	rv32i_cmdline_chooseniomap_s b;
+} rv32i_overlapping_iomap_offense_s;
+
 bool rv32i_iomap_init (rv32i_hart_s* cpu);
 bool rv32i_iomap_add  (rv32i_hart_s* cpu, uint32_t addr, uint32_t size, void (*callback)(rv32i_hart_s* cpu), bool memback);
 

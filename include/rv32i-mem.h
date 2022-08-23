@@ -45,4 +45,6 @@ bool           rv32i_oob_addr(rv32i_hart_s* cpu, uint32_t addr);
 
 void           rv32i_mem_copyfromhost(rv32i_hart_s* cpu, uint32_t addr, void* src, size_t count);
 
+rv32i_overlapping_iomap_offense_s rv32i_chooseniomap_checkoverlap(rv32i_cmdline_s cmd);
+
 #endif // RV32I_MEM_H_

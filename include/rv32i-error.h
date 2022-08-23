@@ -120,4 +120,17 @@
 	__FILE__, __LINE__, __func__, IOMAP_HARDCAP \
 )
 
+
+#define rv32i_overlapping_iomaps(of)  fprintf \
+( \
+	stderr, \
+	"\033[1;39m%s:%i: \033[31merror: \033[0mIn function \033[1m'%s'\033[0m: " \
+	"Overlapping IOMAPs.\n" \
+	"Offender 1: 0x%08x -> 0x%08lx\n" \
+	"Offender 2: 0x%08x -> 0x%08lx\n", \
+	__FILE__, __LINE__, __func__, \
+	of.a.addr, of.a.addr + of.a.size, \
+	of.b.addr, of.b.addr + of.b.size \
+)
+
 #endif // RV32I_ERROR_H_

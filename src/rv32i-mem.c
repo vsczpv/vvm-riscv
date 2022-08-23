@@ -224,3 +224,41 @@ void rv32i_mem_copyfromhost(rv32i_hart_s* cpu, uint32_t addr, void* src, size_t 
 
 	return;
 }
+
+rv32i_overlapping_iomap_offense_s rv32i_chooseniomap_checkoverlap(rv32i_cmdline_s cmd)
+{
+
+	rv32i_overlapping_iomap_offense_s of = { .offended = false };
+
+	for (int i = 0; i < cmd.choosen_iomaps_amnt; i++)
+	{
+		for (int j = 0; j < cmd.choosen_iomaps_amnt; j++)
+		{
+			if (i == j) continue;
+
+			if (cmd.choosen_iomaps[j].addr <  cmd.choosen_iomaps[i].addr) continue;
+
+			if (cmd.choosen_iomaps[j].addr == cmd.choosen_iomaps[i].addr)
+			{
+				of.offended = true;
+
+				of.a = cmd.choosen_iomaps[i];
+				of.b = cmd.choosen_iomaps[j];
+
+				return of;
+			};
+
+			if (cmd.choosen_iomaps[i].addr +  cmd.choosen_iomaps[i].size >= cmd.choosen_iomaps[j].addr)
+			{
+				of.offended = true;
+
+				of.a = cmd.choosen_iomaps[i];
+				of.b = cmd.choosen_iomaps[j];
+
+				return of;
+			};
+		}
+	}
+
+	return of;
+}
