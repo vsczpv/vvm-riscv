@@ -60,18 +60,17 @@ bool rv32i_iomap_add(rv32i_hart_s* cpu, uint32_t addr, uint32_t size, void (*cal
 
 }
 
-rv32i_hart_s rv32i_hart_init(uint32_t total_ram, rv32i_cmdline_chooseniomap_s choosen_iomaps[IOMAP_HARDCAP], int choosen_iomaps_amnt, bool is_using_iomaps)
+rv32i_hart_s rv32i_hart_init(rv32i_cmdline_s cmd)
 {
 
-	/* cpu.regs also gets initialized here as a side effect. */
 	rv32i_hart_s cpu = { 0 };
 
 	rv32i_iomap_init(&cpu);
 
-	if (!is_using_iomaps) rv32i_iomap_add(&cpu, 0, total_ram, NULL, true); else
-	{
-		for (int i = 0; i < choosen_iomaps_amnt; i++) rv32i_iomap_add(&cpu, choosen_iomaps[i].addr, choosen_iomaps[i].size, NULL, true);
-	}
+	if (!cmd.is_using_mmap) rv32i_iomap_add(&cpu, 0, cmd.ramamnt, NULL, true); else
+
+		for (int i = 0; i < cmd.choosen_iomaps_amnt; i++)
+			rv32i_iomap_add(&cpu, cmd.choosen_iomaps[i].addr, cmd.choosen_iomaps[i].size, NULL, true);
 
 	return cpu;
 }

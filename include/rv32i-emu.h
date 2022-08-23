@@ -23,6 +23,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <sys/stat.h>
 
 // VERSION is defined in the Makefile
 #ifndef VERSION
@@ -60,15 +61,36 @@ typedef struct rv32i_cmdline_chooseniomap_s
 	size_t   size;
 } rv32i_cmdline_chooseniomap_s;
 
-bool rv32i_iomap_init(rv32i_hart_s* cpu);
-bool rv32i_iomap_add(rv32i_hart_s* cpu, uint32_t addr, uint32_t size, void (*callback)(rv32i_hart_s* cpu), bool memback);
+typedef struct rv32i_cmdline_s
+{
+	char* filename;
+	int ramamnt;
+	bool is_using_mmap;
+	int choosen_iomaps_amnt;
+	rv32i_cmdline_chooseniomap_s choosen_iomaps[IOMAP_HARDCAP];
+} rv32i_cmdline_s;
 
-rv32i_hart_s rv32i_hart_init(uint32_t total_ram, rv32i_cmdline_chooseniomap_s choosen_iomaps[IOMAP_HARDCAP], int choosen_iomaps_amnt, bool is_using_iomaps);
-void rv32i_hart_destroy(rv32i_hart_s cpu);
+typedef struct rv32i_posix_file_s
+{
+	int fd;
+	struct stat st;
+	uint8_t* buf;
+} rv32i_posix_file_s;
+
+bool rv32i_iomap_init (rv32i_hart_s* cpu);
+bool rv32i_iomap_add  (rv32i_hart_s* cpu, uint32_t addr, uint32_t size, void (*callback)(rv32i_hart_s* cpu), bool memback);
+
+rv32i_hart_s rv32i_hart_init    (rv32i_cmdline_s cmd);
+void         rv32i_hart_destroy (rv32i_hart_s cpu);
 
 void rv32i_hart_execute(rv32i_hart_s* cpu);
 
 extern bool debug;
 extern bool noopstub;
+
+rv32i_cmdline_s    rv32i_parse_cmdline (int argc, char* argv[]);
+rv32i_posix_file_s rv32i_open_file     (rv32i_cmdline_s cmd);
+void               rv32i_close_file    (rv32i_posix_file_s file);
+void               rv32i_load_program  (rv32i_hart_s* cpu, rv32i_posix_file_s file);
 
 #endif /* RV32I_EMU_H_ */
