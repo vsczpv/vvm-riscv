@@ -682,6 +682,7 @@ bool rv32i_inst_system(int inst, rv32i_hart_s* cpu)
 					return true;
 				case 1:
 				{
+					// FIXME: data between two iomaps will fail to be read
 					if (!noopstub)
 					{
 						char* buf   = (char*) rv32i_mem_trueaddr(cpu, cpu->regs[11]);
@@ -720,15 +721,14 @@ bool rv32i_inst_system(int inst, rv32i_hart_s* cpu)
 						if (count < cpu->regs[12]) cpu->regs[10] = count;
 						else cpu->regs[10] = cpu->regs[12];
 
-						if ( rv32i_oob_addr(cpu, cpu->regs[11] + cpu->regs[10]) || rv32i_oob_addr(cpu, cpu->regs[11]) )
+						if ( !rv32i_mem_contiguous(cpu, cpu->regs[11], cpu->regs[11] + cpu->regs[10]) )
 						{
 							rv32i_error_oob("write", cpu->pc - 4);
 							rv32i_backtrace(cpu);
 							return true;
 						}
 
-						uint8_t* buf = rv32i_mem_trueaddr(cpu, cpu->regs[11]);
-						memcpy(buf, input, cpu->regs[10]);
+						rv32i_mem_copyfromhost(cpu, cpu->regs[11], input, cpu->regs[10]);
 
 						free(input);
 

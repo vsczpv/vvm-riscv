@@ -31,6 +31,7 @@
 #include "rv32i-emu.h"
 #include "rv32i-macro.h"
 #include "rv32i-error.h"
+#include "rv32i-mem.h"
 
 #include "rv32i-inst.h"
 
@@ -127,10 +128,17 @@ int main(int argc, char* argv[])
 	file.buf = (uint8_t*) mmap(NULL, file.st.st_size, PROT_READ, MAP_PRIVATE, file.fd, 0);
 	if (file.buf == MAP_FAILED) { rv32i_error_aintfile(filename); return EXIT_FAILURE; }
 
-	rv32i_hart_s cpu = rv32i_hart_init(ramamnt*KiB);
+	rv32i_hart_s cpu = rv32i_hart_init(ramamnt*PAGE_SIZE);
 
-	if (file.st.st_size > cpu.iomaps[0].map.size) { rv32i_error_oom(file.st.st_size, cpu.iomaps[0].map.size); return EXIT_FAILURE; };
-	memcpy(cpu.iomaps[0].map.buf, file.buf, file.st.st_size);
+	uint32_t prgmemsz = rv32i_mem_contiguous(&cpu, 0, file.st.st_size);
+	if ( prgmemsz < file.st.st_size )
+	{
+		rv32i_error_oom(file.st.st_size, prgmemsz);
+		return EXIT_FAILURE;
+	}
+
+//	memcpy(rv32i_mem_trueaddr(&cpu, 0), file.buf, file.st.st_size);
+	rv32i_mem_copyfromhost(&cpu, 0, file.buf, file.st.st_size);
 
 	rv32i_hart_execute(&cpu);
 

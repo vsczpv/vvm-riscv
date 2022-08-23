@@ -20,40 +20,60 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <string.h>
+#include <sys/param.h>
 #include <errno.h>
 
 #include "rv32i-emu.h"
 #include "rv32i-mem.h"
 
-uint8_t* rv32i_mem_trueaddr(rv32i_hart_s* cpu, uint32_t addr)
+#include <stdio.h>
+
+rv32i_iomap_s* rv32i_mem_getiomap_byaddr(rv32i_hart_s* cpu, uint32_t addr)
 {
 
-	uint8_t* reladdr = NULL;
-	bool found       = false;
-	errno            = 0;
+	rv32i_iomap_s* map = NULL;
 
 	for (uint32_t i = 0; i < cpu->iomap_amnt; i++)
 	{
 		if ( addr >= cpu->iomaps[i].start_addr && addr < cpu->iomaps[i].map.size + cpu->iomaps[i].start_addr )
 		{
-
-			uint32_t relative_index = addr - cpu->iomaps[i].start_addr;
-
-			reladdr = &(cpu->iomaps[i].map.buf[relative_index]);
-			found   = true;
-
+			map = &(cpu->iomaps[i]);
 			break;
 		}
 	}
 
-	if (!found)
-	{
-		errno = EADDRNOTAVAIL;
-		return reladdr;
-	}
+	return map;
+}
 
+uint32_t rv32i_mem_contiguous(rv32i_hart_s* cpu, uint32_t start, uint32_t end)
+{
 
-	return reladdr;
+	if (end < start) return 0;
+
+	rv32i_iomap_s* map = rv32i_mem_getiomap_byaddr(cpu, start);
+
+	if (!map) return 0;
+
+	uint32_t memsize = map->map.size;
+
+	if (memsize < end - start) return memsize + rv32i_mem_contiguous(cpu, start + map->map.size, end);
+
+	return memsize;
+}
+
+uint8_t* rv32i_mem_trueaddr(rv32i_hart_s* cpu, uint32_t addr)
+{
+
+	errno = 0;
+
+	rv32i_iomap_s* map = rv32i_mem_getiomap_byaddr(cpu, addr);
+
+	if (!map) { errno = EADDRNOTAVAIL; return NULL; }
+
+	uint32_t relative_index = addr - map->start_addr;
+
+	return &(map->map.buf[relative_index]);
 }
 
 uint32_t rv32i_getinst(rv32i_hart_s* cpu, uint32_t index)
@@ -160,4 +180,47 @@ bool rv32i_oob_addr(rv32i_hart_s* cpu, uint32_t addr)
 	}
 
 	return false;
+}
+
+void rv32i_mem_copyfromhost(rv32i_hart_s* cpu, uint32_t addr, void* src, size_t count)
+{
+
+	uint8_t* src_as_bytes = (uint8_t*) src;
+
+	rv32i_iomap_s* iomaps[IOMAP_HARDCAP] = { NULL };
+
+	int i = 0; for (size_t j = addr; j < addr+count; j = ALIGN_TO_PAGE(j) + PAGE_SIZE)
+	{
+
+		rv32i_iomap_s* new_iomap = rv32i_mem_getiomap_byaddr(cpu, j);
+
+		if      (!i)                     iomaps[i++] = new_iomap;
+		else if (new_iomap != iomaps[i]) iomaps[i++] = new_iomap;
+
+	}
+
+	if (!iomaps[0]) return;
+
+	uint32_t src_offset      = iomaps[0]->start_addr;
+	size_t   src_transferred = 0;
+
+	uint32_t rela_addr       = addr - iomaps[0]->start_addr;
+
+	int j = 0; while (true)
+	{
+
+		if (!iomaps[j]) break;
+
+		uint32_t src_index = iomaps[j]->start_addr - src_offset;
+
+		size_t to_transfer = MIN(iomaps[j]->map.size, count - src_transferred);
+
+		memcpy (iomaps[j]->map.buf + rela_addr, src_as_bytes + src_index, to_transfer);
+
+		src_transferred += to_transfer;
+
+		j++; rela_addr = 0;
+	}
+
+	return;
 }

@@ -30,7 +30,10 @@
 #endif
 
 #define IOMAP_HARDCAP 32
-#define KiB sizeof(uint8_t)*1024
+#define KiB           sizeof(uint8_t)*1024
+#define PAGE_SIZE     1024
+
+#define ALIGN_TO_PAGE(addr) ( (addr - 1) + PAGE_SIZE - ( (addr - 1) % PAGE_SIZE) )
 
 struct rv32i_hart_s;
 
