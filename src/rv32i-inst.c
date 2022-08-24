@@ -688,7 +688,9 @@ bool rv32i_inst_system(int inst, rv32i_hart_s* cpu)
 						char* buf   = (char*) rv32i_mem_trueaddr(cpu, cpu->regs[11]);
 						size_t size = cpu->regs[12];
 
-						if ( rv32i_oob_addr(cpu, cpu->regs[11] + size) )
+						if (size == 0) break;
+
+						if ( rv32i_oob_addr(cpu, cpu->regs[11] + size-1) )
 						{
 							rv32i_error_oob("read", cpu->pc - 4);
 							rv32i_backtrace(cpu);
