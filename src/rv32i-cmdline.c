@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include <sys/mman.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -38,7 +39,8 @@ void usage(void)
 	puts
 	(
 		"\n"
-		"Usage: vvm-riscv [-m <ram>|--memory-map <addr> <size>] [-h|--help] [--debug] [--noop-stub] [--version] FILENAME"
+		"Usage: vvm-riscv [-m <ram>|--memory-map <addr> <size>] [--show-map] [-h|--help]\n"
+		"                 [--debug] [--noop-stub] [--version] FILENAME"
 		"\n\n"
 		"       -m <ram>                    Specify amount of ram in kibibytes (1024).\n"
 		"                                   Value cannot be 0.\n"
@@ -47,6 +49,8 @@ void usage(void)
 		"       --memory-map <addr> <size>  Specify a new memory map at <addr> with <size> kibibytes.\n"
 		"                                   Size cannot be 0.\n"
 		"                                   Cannot be used with -m."
+		"\n\n"
+		"       --show-map                 Display current memory mappings and quit."
 		"\n\n"
 		"       -h, --help                  Show this prompt.\n"
 		"       --debug                     Step-by-step debbuger\n"
@@ -87,6 +91,7 @@ rv32i_cmdline_s rv32i_parse_cmdline(int argc, char* argv[])
 
 	bool ramset   = false;
 	bool fileset  = false;
+	bool show_map = false;
 
 	if (argc > 1)
 	{
@@ -103,6 +108,11 @@ rv32i_cmdline_s rv32i_parse_cmdline(int argc, char* argv[])
 			{
 				if (noopstub) { usage(); exit(EXIT_FAILURE); }
 				noopstub = true;
+			}
+			else if ( !strcmp(argv[i], "--show-map") )
+			{
+				if (show_map) { usage(); exit(EXIT_FAILURE); }
+				show_map = true;
 			}
 			else if ( !strcmp(argv[i], "--memory-map") )
 			{
@@ -141,6 +151,8 @@ rv32i_cmdline_s rv32i_parse_cmdline(int argc, char* argv[])
 		}
 	}
 	else { usage(); exit(EXIT_FAILURE); }
+
+	if (show_map) { rv32i_info_showmmap(r); exit(EXIT_SUCCESS); }
 
 	if (!fileset) { usage(); exit(EXIT_FAILURE); }
 
@@ -184,6 +196,96 @@ void rv32i_load_program(rv32i_hart_s* cpu, rv32i_posix_file_s file)
 	}
 
 	rv32i_mem_copyfromhost(cpu, 0, file.buf, file.st.st_size);
+
+	return;
+}
+
+static int rv32i_info_showmmap_sort(const void* a, const void* b)
+{
+
+	rv32i_cmdline_chooseniomap_s* ap = *( (rv32i_cmdline_chooseniomap_s**) a );
+	rv32i_cmdline_chooseniomap_s* bp = *( (rv32i_cmdline_chooseniomap_s**) b );
+
+	return ap->addr > bp->addr;
+}
+
+void rv32i_info_showmmap(rv32i_cmdline_s cmd)
+{
+
+	rv32i_overlapping_iomap_offense_s check = rv32i_chooseniomap_checkoverlap(cmd);
+	if (check.offended) { rv32i_overlapping_iomaps(check); exit(EXIT_FAILURE); }
+
+	rv32i_cmdline_chooseniomap_s* inorder_iomaps[IOMAP_HARDCAP] = { NULL };
+	for (int i = 0; i < cmd.choosen_iomaps_amnt; i++)
+		inorder_iomaps[i] = &cmd.choosen_iomaps[i];
+
+	qsort(inorder_iomaps, cmd.choosen_iomaps_amnt, sizeof(rv32i_cmdline_chooseniomap_s*), rv32i_info_showmmap_sort);
+
+	if (!cmd.is_using_mmap)	printf
+	(
+		"┌──────────────┐\n"
+		"│  0x00000000  │\n"
+		"│              │    IOMAP #0 → 0x0 ~ 0x%x : %u bytes.\n"
+		"│  0x%08x"  "  │\n"
+		"├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┤\n"
+		"│     none     │\n"
+		"└──────────────┘\n",
+		cmd.ramamnt, cmd.ramamnt, cmd.ramamnt
+	);
+	else
+	{
+
+		printf
+		(
+			"┌──────────────┐\n"
+		);
+
+		bool has_addr_zero = false;
+		for (int i = 0; i < cmd.choosen_iomaps_amnt; i++)
+			if (inorder_iomaps[i]->addr == 0) { has_addr_zero = true; break; }
+
+		if (!has_addr_zero) printf
+		(
+			"│     none     │\n"
+			"├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┤\n"
+		);
+
+		for (int i = 0; i < cmd.choosen_iomaps_amnt; i++)
+		{
+
+			printf
+			(
+				"│  0x%08x"  "  │\n"
+				"│              │    IOMAP #%i → 0x%x ~ 0x%lx : %lu bytes.\n"
+				"│  0x%08lx" "  │\n"
+				"├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┤\n",
+				inorder_iomaps[i]->addr,
+				i,
+				inorder_iomaps[i]->addr, inorder_iomaps[i]->addr + inorder_iomaps[i]->size - 1,
+				inorder_iomaps[i]->size,
+				inorder_iomaps[i]->addr + inorder_iomaps[i]->size - 1
+			);
+
+
+			if (i+1 != cmd.choosen_iomaps_amnt)
+			{
+				if (inorder_iomaps[i]->addr + inorder_iomaps[i]->size != inorder_iomaps[i+1]->addr)
+				printf
+				(
+					"│     none     │\n"
+					"├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┤\n"
+				);
+			}
+
+		}
+
+		printf
+		(
+			"│     none     │\n"
+			"└──────────────┘\n"
+		);
+
+	}
 
 	return;
 }

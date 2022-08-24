@@ -100,4 +100,6 @@ rv32i_posix_file_s rv32i_open_file     (rv32i_cmdline_s cmd);
 void               rv32i_close_file    (rv32i_posix_file_s file);
 void               rv32i_load_program  (rv32i_hart_s* cpu, rv32i_posix_file_s file);
 
+void rv32i_info_showmmap(rv32i_cmdline_s cmd);
+
 #endif /* RV32I_EMU_H_ */

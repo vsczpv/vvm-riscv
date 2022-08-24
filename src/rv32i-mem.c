@@ -248,7 +248,7 @@ rv32i_overlapping_iomap_offense_s rv32i_chooseniomap_checkoverlap(rv32i_cmdline_
 				return of;
 			};
 
-			if (cmd.choosen_iomaps[i].addr +  cmd.choosen_iomaps[i].size >= cmd.choosen_iomaps[j].addr)
+			if (cmd.choosen_iomaps[i].addr +  cmd.choosen_iomaps[i].size - 1 >= cmd.choosen_iomaps[j].addr)
 			{
 				of.offended = true;
 
