@@ -11,7 +11,7 @@ CARGS = 	$(OPT_CARGS) -I$(INCLUDE) -DVERSION='$(VERSION)' -Wall -Wextra -std=c2x
 OBJS = 		$(shell find $(SOURCE) -type f -name '*.c' | sed 's/\.c*$$/\.o/; s/$(SOURCE)\//$(BUILD)\//')
 HEADERS =	$(shell find $(INCLUDE) -type f -name '*.h')
 
-.PHONY: all clean builddir example_debugger example_userinput example_fibonacci
+.PHONY: all clean builddir example_debugger example_userinput example_fibonacci example_buffers
 
 all: vvm-riscv
 
@@ -23,6 +23,7 @@ clean:
 
 	make -C samples/sample1 clean
 	make -C samples/sample2 clean
+	make -C samples/sample3 clean
 
 $(OBJS): $(BUILD)/%.o: $(SOURCE)/%.c $(HEADERS)
 	$(CC) -c $(CARGS) $< -o $@
@@ -35,6 +36,9 @@ example_debugger:  vvm-riscv
 
 example_fibonacci: vvm-riscv
 	make -C samples/sample2 run
+
+example_buffers:   vvm-riscv
+	make -C samples/sample3 run
 
 vvm-riscv: builddir $(OBJS)
 	$(CC) $(CARGS) $(OBJS) -o $@
