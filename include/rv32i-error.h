@@ -133,4 +133,13 @@
 	of.b.addr, of.b.addr + of.b.size - 1 \
 )
 
+#define rv32i_nonaligned_iomap(addr)  fprintf \
+( \
+	stderr, \
+	"\033[1;39m%s:%i: \033[31merror: \033[0mIn function \033[1m'%s'\033[0m: " \
+	"Non-aligned IOMAP: 0x%08x\n", \
+	__FILE__, __LINE__, __func__, \
+	addr \
+)
+
 #endif // RV32I_ERROR_H_

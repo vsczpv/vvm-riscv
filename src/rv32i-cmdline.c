@@ -48,9 +48,10 @@ void usage(void)
 		"\n\n"
 		"       --memory-map <addr> <size>  Specify a new memory map at <addr> with <size> kibibytes.\n"
 		"                                   Size cannot be 0.\n"
+		"                                   Address has to be aligned to 1KiB boundaries.\n"
 		"                                   Cannot be used with -m."
 		"\n\n"
-		"       --show-map                 Display current memory mappings and quit."
+		"       --show-map                  Display current memory mappings and quit."
 		"\n\n"
 		"       -h, --help                  Show this prompt.\n"
 		"       --debug                     Step-by-step debbuger\n"
@@ -125,6 +126,8 @@ rv32i_cmdline_s rv32i_parse_cmdline(int argc, char* argv[])
 				char* endptr;
 				uint32_t addr = strtol(argv[++i], &endptr, 0);
 				if (argv[i-1] == endptr) { usage(); exit(EXIT_FAILURE); }
+
+				if (addr & ALIGNMENT_MASK) { rv32i_nonaligned_iomap(addr); exit(EXIT_FAILURE); }
 
 				size_t   size = strtol(argv[++i], NULL, 0) * KiB;
 				if (!size) { usage(); exit(EXIT_FAILURE); }

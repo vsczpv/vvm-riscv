@@ -37,6 +37,7 @@
 #define ALIGN_TO_PAGE(addr) ( (addr - 1) + PAGE_SIZE - ( (addr - 1) % PAGE_SIZE) )
 
 #define MEMOIZATION_MASK 0xfffffe00
+#define ALIGNMENT_MASK   0x000001ff
 
 struct rv32i_hart_s;
 
