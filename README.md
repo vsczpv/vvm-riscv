@@ -7,7 +7,9 @@ vvm-riscv is a minimal RISC-V instruction-set-simulator oriented for educational
 ---
 
 The only compile time dependency is a C23 compiler.
-Tested compilers are: GCC 12.1.0, Clang 14.0.6 and cproc.
+Tested compilers are: GCC 12.2.0, Clang 14.0.6.
+
+NOTE: cproc is [currently uncompilable due to a bug](https://todo.sr.ht/~mcf/cproc/83), and compatibility with it will be tested in the next release.
 
 To compile the examples, you need the GNU RISCV64 toolchain (or compatible).
 More specifically you want the `riscv64-elf-*` series of binaries.
@@ -24,6 +26,7 @@ To execute the examples, run:
  * For the Fibonacci example:  `make example_fibonacci`
  * For the Debugger example:   `make example_debugger`
  * For the memory-map example: `make example_buffer`
+ * For the load-at example:    `make example_loadat`
 
 Or alternatively, you can run invoke vvm-riscv manually:
 
@@ -52,7 +55,7 @@ For example, to achieve the following memory layout:
 | Map2 | 0x8000      | 4KiB     |
 | Map3 | 0x9000      | 24KiB    |
 
-Can be achieved with the following invocation:
+You'd do the following invocation:
 
 ```
 $ vvm-riscv --memory-map 0x1000 16 \
@@ -62,6 +65,7 @@ $ vvm-riscv --memory-map 0x1000 16 \
             program.bin
 ```
 
+NOTE: `--load-at` is not necessary to use `--memory-map`, and is there for cosmetical reasons.
 
 # Stub ECALL
 ---
@@ -92,7 +96,7 @@ As cited, programs are to be loaded as flat binaries. Assuming the GNU toolchain
 
 `riscv64-elf-objcopy --dump-section .text=FILE.bin FILE.out`
 
-The linker script is used to relocate everything to the target execution address; some linker script examples are provided inside samples/.
+The linker script is used to relocate everything to the target execution address; some linker script examples are provided inside `samples/`.
 
 # Full usage
 ---
@@ -108,13 +112,12 @@ Usage: vvm-riscv [-m <ram>|--memory-map <addr> <size>] [--show-map] [-h|--help]
 
        --memory-map <addr> <size>  Specify a new memory map at <addr> with <size> kibibytes.
                                    Size cannot be 0.
-                                   Size is in kibibytes.
                                    Address has to be aligned to 1KiB boundaries.
                                    Cannot be used with -m.
 
        --show-map                  Display current memory mappings and quit.
 
-       --load-at <addr>            Load program at specified address.
+       --load-at <addr>            Load and run program at specified address.
 
        -h, --help                  Show this prompt.
        --debug                     Step-by-step debbuger
@@ -122,60 +125,63 @@ Usage: vvm-riscv [-m <ram>|--memory-map <addr> <size>] [--show-map] [-h|--help]
        --version                   Show version and license.
 
     FILENAME must be a path to a raw RISCV RV32I flat binary.
-    Numbers can be any value readable by strtol(3) [0x1234, 1234, 01234].
+    Numbers can be any positive value readable by strtol(3) [0x1234, 1234, 01234].
+
 
 ```
 
 # Supported Instructions
 ---
 
-* LUI   → Fully implemented
-* AUIPC → Fully implemented
-* JAL   → Fully implemented
-* JALR  → Fully implemented
-* BEQ   → Fully implemented
-* BNE   → Fully implemented
-* BLT   → Fully implemented
-* BGE   → Fully implemented
-* BLTU  → Fully implemented
-* BGEU  → Fully implemented
-* LB    → Fully implemented
-* LH    → Fully implemented
-* LW    → Fully implemented
-* LBU   → Fully implemented
-* LHU   → Fully implemented
-* SB    → Fully implemented
-* SH    → Fully implemented
-* SW    → Fully implemented
-* ADDI  → Fully implemented
-* SLTI  → Fully implemented
-* SLTIU → Fully implemented
-* XORI  → Fully implemented
-* ORI   → Fully implemented
-* ANDI  → Fully implemented
-* SLLI  → Fully implemented
-* SRLI  → Fully implemented
-* SRAI  → Fully implemented
-* ADD   → Fully implemented
-* SUB   → Fully implemented
-* SLL   → Fully implemented
-* SLT   → Fully implemented
-* SLTU  → Fully implemented
-* XOR   → Fully implemented
-* SRL   → Fully implemented
-* SRA   → Fully implemented
-* OR → Fully implemented
-* AND → Fully implemented
-* FENCE → No-op
-* ECALL → Stub system call
-* EBREAK → Pause and print backtrace
+| Inst   | Status                    |
+|--------|---------------------------|
+| LUI    | Fully implemented         |
+| AUIPC  | Fully implemented         |
+| JAL    | Fully implemented         |
+| JALR   | Fully implemented         |
+| BEQ    | Fully implemented         |
+| BNE    | Fully implemented         |
+| BLT    | Fully implemented         |
+| BGE    | Fully implemented         |
+| BLTU   | Fully implemented         |
+| BGEU   | Fully implemented         |
+| LB     | Fully implemented         |
+| LH     | Fully implemented         |
+| LW     | Fully implemented         |
+| LBU    | Fully implemented         |
+| LHU    | Fully implemented         |
+| SB     | Fully implemented         |
+| SH     | Fully implemented         |
+| SW     | Fully implemented         |
+| ADDI   | Fully implemented         |
+| SLTI   | Fully implemented         |
+| SLTIU  | Fully implemented         |
+| XORI   | Fully implemented         |
+| ORI    | Fully implemented         |
+| ANDI   | Fully implemented         |
+| SLLI   | Fully implemented         |
+| SRLI   | Fully implemented         |
+| SRAI   | Fully implemented         |
+| ADD    | Fully implemented         |
+| SUB    | Fully implemented         |
+| SLL    | Fully implemented         |
+| SLT    | Fully implemented         |
+| SLTU   | Fully implemented         |
+| XOR    | Fully implemented         |
+| SRL    | Fully implemented         |
+| SRA    | Fully implemented         |
+| OR     | Fully implemented         |
+| AND    | Fully implemented         |
+| FENCE  | No-op                     |
+| ECALL  | Stub system call          |
+| EBREAK | Pause and print backtrace |
 
 # Contact
 ---
 
 Written by Vinícius Schütz Piva <vinicius.vsczpv@outlook.com>.
 
-Started on 16/01/2022, last updated 24/08/2022.
+Started on 16/01/2022, last updated 25/08/2022.
 
 # License
 ---
