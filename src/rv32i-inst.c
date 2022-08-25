@@ -26,9 +26,9 @@
 
 #include "rv32i-emu.h"
 #include "rv32i-inst.h"
-#include "rv32i-misc.h"
 #include "rv32i-error.h"
 #include "rv32i-backtrace.h"
+#include "rv32i-mem.h"
 
 bool rv32i_invalassert(uint32_t inst, uint32_t pc)
 {
@@ -682,12 +682,15 @@ bool rv32i_inst_system(int inst, rv32i_hart_s* cpu)
 					return true;
 				case 1:
 				{
+					// FIXME: data between two iomaps will fail to be read
 					if (!noopstub)
 					{
-						char* buf = (char*) &cpu->ram.buf[cpu->regs[11]];
+						char* buf   = (char*) rv32i_mem_trueaddr(cpu, cpu->regs[11]);
 						size_t size = cpu->regs[12];
 
-						if ((size + cpu->regs[11]) > cpu->ram.size)
+						if (size == 0) break;
+
+						if ( rv32i_oob_addr(cpu, cpu->regs[11] + size-1) )
 						{
 							rv32i_error_oob("read", cpu->pc - 4);
 							rv32i_backtrace(cpu);
@@ -697,6 +700,7 @@ bool rv32i_inst_system(int inst, rv32i_hart_s* cpu)
 						if (debug) system("clear");
 						fwrite(buf, (signed) size, 1, stdout);
 						if (debug) getchar();
+
 					}
 					break;
 				}
@@ -705,6 +709,8 @@ bool rv32i_inst_system(int inst, rv32i_hart_s* cpu)
 
 					if (!noopstub)
 					{
+						//TODO: revisit else { cpu->regs[10] = 0 }
+
 						char* input = NULL;
 
 						if (debug) system("clear"), printf("\033[1;33mInput required:\033[0m\n");
@@ -717,15 +723,17 @@ bool rv32i_inst_system(int inst, rv32i_hart_s* cpu)
 						if (count < cpu->regs[12]) cpu->regs[10] = count;
 						else cpu->regs[10] = cpu->regs[12];
 
-
-						if ((unsigned) ( cpu->regs[11] + cpu->regs[10]) > cpu->ram.size)
+						if ( !rv32i_mem_contiguous(cpu, cpu->regs[11], cpu->regs[11] + cpu->regs[10]) )
 						{
 							rv32i_error_oob("write", cpu->pc - 4);
 							rv32i_backtrace(cpu);
 							return true;
 						}
 
-						memcpy(&cpu->ram.buf[cpu->regs[11]], input, cpu->regs[10]);
+						rv32i_mem_copyfromhost(cpu, cpu->regs[11], input, cpu->regs[10]);
+
+						free(input);
+
 					} else { cpu->regs[10] = 0; }
 					break;
 				}

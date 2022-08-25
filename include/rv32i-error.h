@@ -21,6 +21,8 @@
 #ifndef RV32I_ERROR_H_
 #define RV32I_ERROR_H_
 
+#include "rv32i-emu.h"
+
 #define rv32i_error_inval(inst_name, subinst, inst, pc) fprintf \
 ( \
 	stderr, \
@@ -108,6 +110,44 @@
 	"\033[1;39m%s:%i: \033[31merror: \033[0mIn function \033[1m'%s'\033[0m: " \
 	"Not enough memory to run program: Need %lu bytes, have %u.\n", \
 	__FILE__, __LINE__, __func__, need, have \
+)
+
+#define rv32i_too_many_maps()  fprintf \
+( \
+	stderr, \
+	"\033[1;39m%s:%i: \033[31merror: \033[0mIn function \033[1m'%s'\033[0m: " \
+	"Too many memory maps, cannot exceed %i.\n", \
+	__FILE__, __LINE__, __func__, IOMAP_HARDCAP \
+)
+
+
+#define rv32i_overlapping_iomaps(of)  fprintf \
+( \
+	stderr, \
+	"\033[1;39m%s:%i: \033[31merror: \033[0mIn function \033[1m'%s'\033[0m: " \
+	"Overlapping IOMAPs.\n" \
+	"Offender 1: 0x%08x -> 0x%08lx\n" \
+	"Offender 2: 0x%08x -> 0x%08lx\n", \
+	__FILE__, __LINE__, __func__, \
+	of.a.addr, of.a.addr + of.a.size - 1, \
+	of.b.addr, of.b.addr + of.b.size - 1 \
+)
+
+#define rv32i_nonaligned_iomap(addr)  fprintf \
+( \
+	stderr, \
+	"\033[1;39m%s:%i: \033[31merror: \033[0mIn function \033[1m'%s'\033[0m: " \
+	"Non-aligned IOMAP: 0x%08x\n", \
+	__FILE__, __LINE__, __func__, \
+	addr \
+)
+
+#define rv32i_nomap_atexec() fprintf \
+( \
+	stderr, \
+	"\033[1;39m%s:%i: \033[31merror: \033[0mIn function \033[1m'%s'\033[0m: " \
+	"No allocated memory region at execution vector. Maybe you forgot --load-at?\n", \
+	__FILE__, __LINE__, __func__ \
 )
 
 #endif // RV32I_ERROR_H_

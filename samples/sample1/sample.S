@@ -12,7 +12,7 @@ string2: .ascii "Hello, "
 string3: .ascii "!\n"
          .set string3_size, .-string3
 
-.set buf,      0x400
+.set buf,      0x407
 .set buf_size, 0x1ff
 
 .set SYSEXIT,  0

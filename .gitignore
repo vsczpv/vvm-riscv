@@ -2,3 +2,4 @@
 vvm-riscv
 *.bin
 *.out
+*.kdev4
