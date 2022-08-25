@@ -195,6 +195,8 @@ void rv32i_setbyte(rv32i_hart_s* cpu, uint32_t index, uint32_t val)
 bool rv32i_oob_addr(rv32i_hart_s* cpu, uint32_t addr)
 {
 
+	errno = 0;
+
 	if ( !rv32i_mem_trueaddr(cpu, addr) )
 	{
 		if (errno == EADDRNOTAVAIL) return true;
