@@ -24,6 +24,7 @@ clean:
 	make -C samples/sample1 clean
 	make -C samples/sample2 clean
 	make -C samples/sample3 clean
+	make -C samples/sample4 clean
 
 $(OBJS): $(BUILD)/%.o: $(SOURCE)/%.c $(HEADERS)
 	$(CC) -c $(CARGS) $< -o $@
@@ -39,6 +40,9 @@ example_fibonacci: vvm-riscv
 
 example_buffers:   vvm-riscv
 	make -C samples/sample3 run
+
+example_loadat:    vvm-riscv
+	make -C samples/sample4 run
 
 vvm-riscv: builddir $(OBJS)
 	$(CC) $(CARGS) $(OBJS) -o $@
