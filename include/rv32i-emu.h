@@ -90,7 +90,7 @@ typedef struct rv32i_overlapping_iomap_offense_s
 } rv32i_overlapping_iomap_offense_s;
 
 bool rv32i_iomap_init (rv32i_hart_s* cpu);
-bool rv32i_iomap_add  (rv32i_hart_s* cpu, uint32_t addr, uint32_t size, void (*callback)(rv32i_hart_s* cpu), bool memback);
+void rv32i_iomap_add  (rv32i_hart_s* cpu, uint32_t addr, uint32_t size, void (*callback)(rv32i_hart_s* cpu), bool memback);
 
 rv32i_hart_s rv32i_hart_init    (rv32i_cmdline_s cmd);
 void         rv32i_hart_destroy (rv32i_hart_s cpu);
