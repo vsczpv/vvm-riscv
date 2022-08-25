@@ -104,9 +104,9 @@ uint32_t rv32i_getinst(rv32i_hart_s* cpu, uint32_t index)
 	uint8_t* addr = rv32i_mem_trueaddr(cpu, index);
 
  	uint32_t inst = addr[0] << 0  |
-				    addr[1] << 8  |
- 	                addr[2] << 16 |
- 	                addr[3] << 24;
+	                addr[1] << 8  |
+	                addr[2] << 16 |
+	                addr[3] << 24;
 
 	return inst;
 }
