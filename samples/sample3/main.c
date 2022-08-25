@@ -23,10 +23,10 @@ int main(void)
 		funny_buffer_2[i+1] = funny_buffer_1[j++] + 0x20;
 	}
 
-	putstring("Buffer @ 0x123456:\n");
+	putstring("Buffer @ 0x123400:\n");
 	write(funny_buffer_1, 1*KiB);
 
-	putstring("\n\nBuffer @ 0xdeadbeef:\n");
+	putstring("\n\nBuffer @ 0xdead000:\n");
 	write(funny_buffer_2, 2*KiB);
 
 	putstring("\n\n");

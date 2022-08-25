@@ -104,9 +104,9 @@ uint32_t rv32i_getinst(rv32i_hart_s* cpu, uint32_t index)
 	uint8_t* addr = rv32i_mem_trueaddr(cpu, index);
 
  	uint32_t inst = addr[0] << 0  |
-				    addr[1] << 8  |
- 	                addr[2] << 16 |
- 	                addr[3] << 24;
+	                addr[1] << 8  |
+	                addr[2] << 16 |
+	                addr[3] << 24;
 
 	return inst;
 }
@@ -195,6 +195,8 @@ void rv32i_setbyte(rv32i_hart_s* cpu, uint32_t index, uint32_t val)
 bool rv32i_oob_addr(rv32i_hart_s* cpu, uint32_t addr)
 {
 
+	errno = 0;
+
 	if ( !rv32i_mem_trueaddr(cpu, addr) )
 	{
 		if (errno == EADDRNOTAVAIL) return true;
@@ -240,6 +242,49 @@ void rv32i_mem_copyfromhost(rv32i_hart_s* cpu, uint32_t addr, void* src, size_t 
 		memcpy (iomaps[j]->map.buf + rela_addr, src_as_bytes + src_index, to_transfer);
 
 		src_transferred += to_transfer;
+
+		j++; rela_addr = 0;
+	}
+
+	return;
+}
+
+void rv32i_mem_copyfromguest(rv32i_hart_s* cpu, uint32_t addr, void* dest, size_t count)
+{
+
+	uint8_t* dest_as_bytes = (uint8_t*) dest;
+
+	rv32i_iomap_s* iomaps[IOMAP_HARDCAP] = { NULL };
+
+	int i = 0; for (size_t j = addr; j < addr+count; j = ALIGN_TO_PAGE(j) + PAGE_SIZE)
+	{
+
+		rv32i_iomap_s* new_iomap = rv32i_mem_getiomap_byaddr(cpu, j);
+
+		if      (!i)                     iomaps[i++] = new_iomap;
+		else if (new_iomap != iomaps[i]) iomaps[i++] = new_iomap;
+
+	}
+
+	if (!iomaps[0]) return;
+
+	uint32_t dest_offset      = iomaps[0]->start_addr;
+	size_t   dest_transferred = 0;
+
+	uint32_t rela_addr       = addr - iomaps[0]->start_addr;
+
+	int j = 0; while (true)
+	{
+
+		if (!iomaps[j]) break;
+
+		uint32_t dest_index = iomaps[j]->start_addr - dest_offset;
+
+		size_t to_transfer = MIN(iomaps[j]->map.size, count - dest_transferred);
+
+		memcpy (dest_as_bytes + dest_index, iomaps[j]->map.buf + rela_addr, to_transfer);
+
+		dest_transferred += to_transfer;
 
 		j++; rela_addr = 0;
 	}

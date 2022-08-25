@@ -682,25 +682,29 @@ bool rv32i_inst_system(int inst, rv32i_hart_s* cpu)
 					return true;
 				case 1:
 				{
-					// FIXME: data between two iomaps will fail to be read
+
 					if (!noopstub)
 					{
-						char* buf   = (char*) rv32i_mem_trueaddr(cpu, cpu->regs[11]);
+
 						size_t size = cpu->regs[12];
 
 						if (size == 0) break;
 
-						if ( rv32i_oob_addr(cpu, cpu->regs[11] + size-1) )
+						if ( !rv32i_mem_contiguous(cpu, cpu->regs[11], cpu->regs[11] + size - 1) )
 						{
-							rv32i_error_oob("read", cpu->pc - 4);
+							rv32i_error_oob("write", cpu->pc - 4);
 							rv32i_backtrace(cpu);
 							return true;
 						}
+
+						uint8_t* buf = (uint8_t*) malloc (size);
+						rv32i_mem_copyfromguest(cpu, cpu->regs[11], buf, size);
 
 						if (debug) system("clear");
 						fwrite(buf, (signed) size, 1, stdout);
 						if (debug) getchar();
 
+						free(buf);
 					}
 					break;
 				}
@@ -709,7 +713,6 @@ bool rv32i_inst_system(int inst, rv32i_hart_s* cpu)
 
 					if (!noopstub)
 					{
-						//TODO: revisit else { cpu->regs[10] = 0 }
 
 						char* input = NULL;
 
@@ -725,7 +728,7 @@ bool rv32i_inst_system(int inst, rv32i_hart_s* cpu)
 
 						if ( !rv32i_mem_contiguous(cpu, cpu->regs[11], cpu->regs[11] + cpu->regs[10]) )
 						{
-							rv32i_error_oob("write", cpu->pc - 4);
+							rv32i_error_oob("read", cpu->pc - 4);
 							rv32i_backtrace(cpu);
 							return true;
 						}
@@ -734,7 +737,7 @@ bool rv32i_inst_system(int inst, rv32i_hart_s* cpu)
 
 						free(input);
 
-					} else { cpu->regs[10] = 0; }
+					}
 					break;
 				}
 				default:

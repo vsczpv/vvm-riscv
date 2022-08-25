@@ -37,14 +37,8 @@ bool rv32i_iomap_init(rv32i_hart_s* cpu)
 	return cpu->iomaps ? false : true;
 }
 
-bool rv32i_iomap_add(rv32i_hart_s* cpu, uint32_t addr, uint32_t size, void (*callback)(rv32i_hart_s* cpu), bool memback)
+void rv32i_iomap_add(rv32i_hart_s* cpu, uint32_t addr, uint32_t size, void (*callback)(rv32i_hart_s* cpu), bool memback)
 {
-
-	if (cpu->iomap_amnt == IOMAP_HARDCAP) return true;
-
-	/* Check for overlap */
-	for (uint32_t i = 0; i < cpu->iomap_amnt; i++)
-		if (addr >= cpu->iomaps[i].start_addr && addr < ( cpu->iomaps[i].start_addr + cpu->iomaps[i].map.size )) return true;
 
 	uint32_t curio     = (++(cpu->iomap_amnt)) - 1;
 
@@ -56,7 +50,7 @@ bool rv32i_iomap_add(rv32i_hart_s* cpu, uint32_t addr, uint32_t size, void (*cal
 	cpu->iomaps[curio].callback      = callback;
 	cpu->iomaps[curio].memory_backed = memback;
 
-	return false;
+	return;
 
 }
 
@@ -100,7 +94,7 @@ rv32i_hart_s rv32i_hart_init(rv32i_cmdline_s cmd)
 void rv32i_hart_destroy(rv32i_hart_s cpu)
 {
 
-//	for (uint32_t i = 0; i < cpu.iomap_amnt; i++) free(cpu.iomaps[i].map.buf);
+	for (uint32_t i = 0; i < cpu.iomap_amnt; i++) free(cpu.iomaps[i].map.buf);
 
 	free(cpu.iomaps);
 

@@ -7,7 +7,7 @@
 
 .data
 
-.set STACK_CEIL, 0x4000
+.set STACK_CEIL, 0x3fff
 
 .set SYSEXIT,  0
 .set SYSWRITE, 1
