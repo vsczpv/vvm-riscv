@@ -53,7 +53,7 @@ void usage(void)
 		"\n\n"
 		"       --show-map                  Display current memory mappings and quit."
 		"\n\n"
-		"       --load-at <addr>            Load program at specified address."
+		"       --load-at <addr>            Load and run program at specified address."
 		"\n\n"
 		"       -h, --help                  Show this prompt.\n"
 		"       --debug                     Step-by-step debbuger\n"
@@ -61,7 +61,7 @@ void usage(void)
 		"       --version                   Show version and license."
 		"\n\n"
 		"    FILENAME must be a path to a raw RISCV RV32I flat binary.\n"
-		"    Numbers can be any value readable by strtol(3) [0x1234, 1234, 01234]."
+		"    Numbers can be any positive value readable by strtol(3) [0x1234, 1234, 01234]."
 		"\n"
 	);
 
