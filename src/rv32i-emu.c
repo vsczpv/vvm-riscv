@@ -70,12 +70,25 @@ rv32i_hart_s rv32i_hart_init(rv32i_cmdline_s cmd)
 	rv32i_overlapping_iomap_offense_s check = rv32i_chooseniomap_checkoverlap(cmd);
 	if (check.offended) { rv32i_overlapping_iomaps(check); exit(EXIT_FAILURE); }
 
-	if (!cmd.is_using_mmap) rv32i_iomap_add(&cpu, 0, cmd.ramamnt, NULL, true); else
+	rv32i_iomap_s* map;
+
+	if (!cmd.is_using_mmap)
+	{
+
+		rv32i_iomap_add(&cpu, 0, cmd.ramamnt, NULL, true);
+
+		map = rv32i_mem_getiomap_byaddr_nonmemoised(&cpu, 0);
+	}
+	else
+	{
 
 		for (int i = 0; i < cmd.choosen_iomaps_amnt; i++)
 			rv32i_iomap_add(&cpu, cmd.choosen_iomaps[i].addr, cmd.choosen_iomaps[i].size, NULL, true);
 
-	rv32i_iomap_s* map = rv32i_mem_getiomap_byaddr_nonmemoised(&cpu, 0);
+		map = rv32i_mem_getiomap_byaddr_nonmemoised(&cpu, cmd.load_at);
+	}
+
+	if (!map) { rv32i_nomap_atexec(); exit(EXIT_FAILURE); };
 
 	cpu.memoized_iomap = map;
 

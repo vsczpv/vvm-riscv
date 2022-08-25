@@ -208,7 +208,7 @@ void rv32i_close_file(rv32i_posix_file_s file)
 void rv32i_load_program(rv32i_hart_s* cpu, rv32i_posix_file_s file, rv32i_cmdline_s cmd)
 {
 
-	uint32_t prgmemsz = rv32i_mem_contiguous(cpu, cmd.load_at, file.st.st_size);
+	uint32_t prgmemsz = rv32i_mem_contiguous(cpu, cmd.load_at, cmd.load_at + file.st.st_size);
 
 	if ( prgmemsz < file.st.st_size )
 	{

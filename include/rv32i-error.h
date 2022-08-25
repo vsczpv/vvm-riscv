@@ -142,4 +142,12 @@
 	addr \
 )
 
+#define rv32i_nomap_atexec() fprintf \
+( \
+	stderr, \
+	"\033[1;39m%s:%i: \033[31merror: \033[0mIn function \033[1m'%s'\033[0m: " \
+	"No allocated memory region at execution vector. Maybe you forgot --load-at?\n", \
+	__FILE__, __LINE__, __func__ \
+)
+
 #endif // RV32I_ERROR_H_
