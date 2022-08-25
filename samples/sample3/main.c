@@ -9,10 +9,10 @@ int main(void)
 	 *
 	 * Declaring these as globals makes GCC invert their endianess (???)
 	 *
-         */
+	 */
 
-	char* funny_buffer_1 = (char*) 0x123456;
-	char* funny_buffer_2 = (char*) 0xdeadbeef;
+	char* funny_buffer_1 = (char*) 0x123400;
+	char* funny_buffer_2 = (char*) 0xdead000;
 
 	for (int i = 0; i < 1*KiB; i++)
 		funny_buffer_1[i] = (char) ( (i % 20) + 'A' );

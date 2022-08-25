@@ -10,8 +10,8 @@ clean:
 run: main.bin
 	../../vvm-riscv --memory-map 0 2 \
                 --memory-map 0x3c00 1 \
-                --memory-map 0x123456 1 \
-                --memory-map 0xdeadbeef 2 \
+                --memory-map 0x123400 1 \
+                --memory-map 0xdead000 2 \
                 main.bin
 
 # TODO: Fix ISA mis-match warning
