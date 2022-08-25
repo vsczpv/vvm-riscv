@@ -94,7 +94,7 @@ rv32i_hart_s rv32i_hart_init(rv32i_cmdline_s cmd)
 void rv32i_hart_destroy(rv32i_hart_s cpu)
 {
 
-//	for (uint32_t i = 0; i < cpu.iomap_amnt; i++) free(cpu.iomaps[i].map.buf);
+	for (uint32_t i = 0; i < cpu.iomap_amnt; i++) free(cpu.iomaps[i].map.buf);
 
 	free(cpu.iomaps);
 
