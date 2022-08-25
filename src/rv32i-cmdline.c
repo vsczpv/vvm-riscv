@@ -121,6 +121,7 @@ rv32i_cmdline_s rv32i_parse_cmdline(int argc, char* argv[])
 				char* endptr;
 				uint32_t addr = strtol(argv[++i], &endptr, 0);
 				if (argv[i-1] == endptr) { usage(); exit(EXIT_FAILURE); }
+				if ((signed) addr < 0) { usage(); exit(EXIT_FAILURE); }
 
 				r.load_at = addr;
 			}
@@ -140,11 +141,13 @@ rv32i_cmdline_s rv32i_parse_cmdline(int argc, char* argv[])
 				char* endptr;
 				uint32_t addr = strtol(argv[++i], &endptr, 0);
 				if (argv[i-1] == endptr) { usage(); exit(EXIT_FAILURE); }
+				if ((signed) addr < 0) { usage(); exit(EXIT_FAILURE); }
 
 				if (addr & ALIGNMENT_MASK) { rv32i_nonaligned_iomap(addr); exit(EXIT_FAILURE); }
 
 				size_t   size = strtol(argv[++i], NULL, 0) * KiB;
 				if (!size) { usage(); exit(EXIT_FAILURE); }
+				if ((signed) size < 0) { usage(); exit(EXIT_FAILURE); }
 
 				r.choosen_iomaps[r.choosen_iomaps_amnt].addr = addr;
 				r.choosen_iomaps[r.choosen_iomaps_amnt].size = size;
@@ -158,6 +161,7 @@ rv32i_cmdline_s rv32i_parse_cmdline(int argc, char* argv[])
 				ramset = true;
 				r.ramamnt = strtol(argv[++i], NULL, 0) * KiB;
 				if ((!r.ramamnt && errno == EINVAL) || !r.ramamnt || r.is_using_mmap) { usage(); exit(EXIT_FAILURE); }
+				if ((signed) r.ramamnt < 0) { usage(); exit(EXIT_FAILURE); }
 			}
 			else if (argv[i][0] == '-') { usage(); exit(EXIT_FAILURE); }
 			else
