@@ -709,7 +709,6 @@ bool rv32i_inst_system(int inst, rv32i_hart_s* cpu)
 
 					if (!noopstub)
 					{
-						//TODO: revisit else { cpu->regs[10] = 0 }
 
 						char* input = NULL;
 
@@ -734,7 +733,7 @@ bool rv32i_inst_system(int inst, rv32i_hart_s* cpu)
 
 						free(input);
 
-					} else { cpu->regs[10] = 0; }
+					}
 					break;
 				}
 				default:
