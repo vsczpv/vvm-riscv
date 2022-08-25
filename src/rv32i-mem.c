@@ -249,6 +249,49 @@ void rv32i_mem_copyfromhost(rv32i_hart_s* cpu, uint32_t addr, void* src, size_t 
 	return;
 }
 
+void rv32i_mem_copyfromguest(rv32i_hart_s* cpu, uint32_t addr, void* dest, size_t count)
+{
+
+	uint8_t* dest_as_bytes = (uint8_t*) dest;
+
+	rv32i_iomap_s* iomaps[IOMAP_HARDCAP] = { NULL };
+
+	int i = 0; for (size_t j = addr; j < addr+count; j = ALIGN_TO_PAGE(j) + PAGE_SIZE)
+	{
+
+		rv32i_iomap_s* new_iomap = rv32i_mem_getiomap_byaddr(cpu, j);
+
+		if      (!i)                     iomaps[i++] = new_iomap;
+		else if (new_iomap != iomaps[i]) iomaps[i++] = new_iomap;
+
+	}
+
+	if (!iomaps[0]) return;
+
+	uint32_t dest_offset      = iomaps[0]->start_addr;
+	size_t   dest_transferred = 0;
+
+	uint32_t rela_addr       = addr - iomaps[0]->start_addr;
+
+	int j = 0; while (true)
+	{
+
+		if (!iomaps[j]) break;
+
+		uint32_t dest_index = iomaps[j]->start_addr - dest_offset;
+
+		size_t to_transfer = MIN(iomaps[j]->map.size, count - dest_transferred);
+
+		memcpy (dest_as_bytes + dest_index, iomaps[j]->map.buf + rela_addr, to_transfer);
+
+		dest_transferred += to_transfer;
+
+		j++; rela_addr = 0;
+	}
+
+	return;
+}
+
 rv32i_overlapping_iomap_offense_s rv32i_chooseniomap_checkoverlap(rv32i_cmdline_s cmd)
 {
 
