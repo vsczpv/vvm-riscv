@@ -1,7 +1,7 @@
 # VVM-RISCV
 ---
 
-vvm-riscv is a minimal RISC-V instruction-set-simulator/emulator oriented for educational and recreational purposes. It exclusively runs flat binaries and implements the Unprivileged-20191213 specification.
+vvm-riscv is a minimal RISC-V instruction-set-simulator oriented for educational and recreational purposes. It exclusively runs flat binaries and implements the Unprivileged-20191213 specification.
 
 # Dependencies
 ---
@@ -23,10 +23,45 @@ To execute the examples, run:
  * For the User-Input example: `make example_userinput`
  * For the Fibonacci example:  `make example_fibonacci`
  * For the Debugger example:   `make example_debugger`
+ * For the memory-map example: `make example_buffer`
 
 Or alternatively, you can run invoke vvm-riscv manually:
 
 `./vvm-riscv [filename]`
+
+# Arbitrary memory maps
+---
+vvm-riscv supports non-contiguous memory regions, that can be specified with the `--memory-map <addr> <size>` command-line option.
+
+Memory maps are aligned to 1KiB, and are sized in increments of 1KiB.
+
+For example, to achieve the following memory layout:
+
+```
+0x0000                                              0xffff
+┌───┬───────────┬─────────┬────┬───────────────┬─────────┐
+│   ┆           ┆         ┆    ┆               ┆         │
+│ - ┆   Map1    ┆    -    ┆ M2 ┆     Map3      ┆    -    │
+│   ┆           ┆         ┆    ┆               ┆         │
+└───┴───────────┴─────────┴────┴───────────────┴─────────┘
+```
+
+|      | **Address** | **Size** |
+|------|-------------|----------|
+| Map1 | 0x1000      | 16KiB    |
+| Map2 | 0x8000      | 4KiB     |
+| Map3 | 0x9000      | 24KiB    |
+
+Can be achieved with the following invocation:
+
+```
+$ vvm-riscv --memory-map 0x1000 16 \
+            --memory-map 0x8000 4  \
+            --memory-map 0x9000 24 \
+            --load-at    0x1000    \
+            program.bin
+```
+
 
 # Stub ECALL
 ---
@@ -44,7 +79,7 @@ Three calls are present, that are selected with the a0 register, theirs argument
 
 Invalid or missing instructions are treated as emulation errors since without the privileged spec being implemented it's impossible to catch them.
 
-Programs are loaded at address 0, with a default of 16KiB of memory.
+By default, programs are loaded at address 0, with 16KiB of memory.
 Out of bounds access stops the emulation.
 
 Invalid or unimplemented instructions are treated as "Unknown" by the backtrace dissasembler.
@@ -57,25 +92,39 @@ As cited, programs are to be loaded as flat binaries. Assuming the GNU toolchain
 
 `riscv64-elf-objcopy --dump-section .text=FILE.bin FILE.out`
 
-The linker script is used to relocate everything to address 0; some linker script examples are provided inside samples/.
+The linker script is used to relocate everything to the target execution address; some linker script examples are provided inside samples/.
 
 # Full usage
 ---
 
+```
 
-    Usage: vvm-riscv [-m <ram>] [-h|--help] [--debug] [--noop-stub] [--version] FILENAME
+Usage: vvm-riscv [-m <ram>|--memory-map <addr> <size>] [--show-map] [-h|--help]
+                 [--debug] [--noop-stub] [--version] FILENAME
 
-           -m <ram>        Specify amount of ram in kibibytes (1024).
-                           Value cannot be 0.
-                           Default value is 16KiB.
+       -m <ram>                    Specify amount of ram in kibibytes (1024).
+                                   Value cannot be 0.
+                                   Default value is 16KiB.
 
-           -h, --help      Show this prompt.
-		   --debug         Step-by-step debbuger
-           --noop-stub     Treat ecall stub as noop.
-           --version       Show version and license.
+       --memory-map <addr> <size>  Specify a new memory map at <addr> with <size> kibibytes.
+                                   Size cannot be 0.
+                                   Size is in kibibytes.
+                                   Address has to be aligned to 1KiB boundaries.
+                                   Cannot be used with -m.
 
-        FILENAME must be a path to a raw RISCV RV32I flat binary.
+       --show-map                  Display current memory mappings and quit.
 
+       --load-at <addr>            Load program at specified address.
+
+       -h, --help                  Show this prompt.
+       --debug                     Step-by-step debbuger
+       --noop-stub                 Treat ecall stub as noop.
+       --version                   Show version and license.
+
+    FILENAME must be a path to a raw RISCV RV32I flat binary.
+    Numbers can be any value readable by strtol(3) [0x1234, 1234, 01234].
+
+```
 
 # Supported Instructions
 ---
@@ -126,7 +175,7 @@ The linker script is used to relocate everything to address 0; some linker scrip
 
 Written by Vinícius Schütz Piva <vinicius.vsczpv@outlook.com>.
 
-Started on 16/01/2022, last updated 15/07/2022.
+Started on 16/01/2022, last updated 24/08/2022.
 
 # License
 ---
