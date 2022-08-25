@@ -29,7 +29,7 @@
 
 #include <stdio.h>
 
-rv32i_iomap_s* rv32i_mem_getiomap_byaddr(rv32i_hart_s* cpu, uint32_t addr)
+rv32i_iomap_s* rv32i_mem_getiomap_byaddr_nonmemoised(rv32i_hart_s* cpu, uint32_t addr)
 {
 
 	rv32i_iomap_s* map = NULL;
@@ -42,6 +42,28 @@ rv32i_iomap_s* rv32i_mem_getiomap_byaddr(rv32i_hart_s* cpu, uint32_t addr)
 			break;
 		}
 	}
+
+	return map;
+}
+
+rv32i_iomap_s* rv32i_mem_getiomap_byaddr(rv32i_hart_s* cpu, uint32_t addr)
+{
+
+	rv32i_iomap_s* map = NULL;
+
+ 	if ((addr & MEMOIZATION_MASK) == (cpu->memoized_iomap->start_addr))
+ 		return cpu->memoized_iomap;
+
+	for (uint32_t i = 0; i < cpu->iomap_amnt; i++)
+	{
+		if ( addr >= cpu->iomaps[i].start_addr && addr < cpu->iomaps[i].map.size + cpu->iomaps[i].start_addr )
+		{
+			map = &(cpu->iomaps[i]);
+			break;
+		}
+	}
+
+ 	cpu->memoized_iomap = map;
 
 	return map;
 }

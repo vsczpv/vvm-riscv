@@ -25,6 +25,7 @@
 
 #include "rv32i-emu.h"
 
+rv32i_iomap_s* rv32i_mem_getiomap_byaddr_nonmemoised(rv32i_hart_s* cpu, uint32_t addr);
 rv32i_iomap_s* rv32i_mem_getiomap_byaddr(rv32i_hart_s* cpu, uint32_t addr);
 
 uint32_t       rv32i_mem_contiguous(rv32i_hart_s* cpu, uint32_t start, uint32_t end);

@@ -36,6 +36,8 @@
 
 #define ALIGN_TO_PAGE(addr) ( (addr - 1) + PAGE_SIZE - ( (addr - 1) % PAGE_SIZE) )
 
+#define MEMOIZATION_MASK 0xfffffe00
+
 struct rv32i_hart_s;
 
 typedef struct rv32i_iomap_s
@@ -53,6 +55,7 @@ typedef struct rv32i_hart_s
 	struct { uint8_t* buf; uint32_t size; } ram;
 	int32_t regs[32];
 	uint32_t pc;
+	rv32i_iomap_s* memoized_iomap;
 } rv32i_hart_s;
 
 typedef struct rv32i_cmdline_chooseniomap_s

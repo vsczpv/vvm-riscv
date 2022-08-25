@@ -75,6 +75,10 @@ rv32i_hart_s rv32i_hart_init(rv32i_cmdline_s cmd)
 		for (int i = 0; i < cmd.choosen_iomaps_amnt; i++)
 			rv32i_iomap_add(&cpu, cmd.choosen_iomaps[i].addr, cmd.choosen_iomaps[i].size, NULL, true);
 
+	rv32i_iomap_s* map = rv32i_mem_getiomap_byaddr_nonmemoised(&cpu, 0);
+
+	cpu.memoized_iomap      = map;
+
 	return cpu;
 }
 
