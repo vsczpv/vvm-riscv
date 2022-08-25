@@ -53,6 +53,8 @@ void usage(void)
 		"\n\n"
 		"       --show-map                  Display current memory mappings and quit."
 		"\n\n"
+		"       --load-at <addr>            Load program at specified address."
+		"\n\n"
 		"       -h, --help                  Show this prompt.\n"
 		"       --debug                     Step-by-step debbuger\n"
 		"       --noop-stub                 Treat ecall stub as noop.\n"
@@ -90,9 +92,10 @@ rv32i_cmdline_s rv32i_parse_cmdline(int argc, char* argv[])
 		.choosen_iomaps_amnt = 0
 	};
 
-	bool ramset   = false;
-	bool fileset  = false;
-	bool show_map = false;
+	bool ramset      = false;
+	bool fileset     = false;
+	bool show_map    = false;
+	bool load_at_set = false;
 
 	if (argc > 1)
 	{
@@ -109,6 +112,17 @@ rv32i_cmdline_s rv32i_parse_cmdline(int argc, char* argv[])
 			{
 				if (noopstub) { usage(); exit(EXIT_FAILURE); }
 				noopstub = true;
+			}
+			else if ( !strcmp(argv[i], "--load-at") )
+			{
+				if (load_at_set || i+1 >= argc) { usage(); exit(EXIT_FAILURE); }
+				load_at_set = true;
+
+				char* endptr;
+				uint32_t addr = strtol(argv[++i], &endptr, 0);
+				if (argv[i-1] == endptr) { usage(); exit(EXIT_FAILURE); }
+
+				r.load_at = addr;
 			}
 			else if ( !strcmp(argv[i], "--show-map") )
 			{
@@ -187,10 +201,10 @@ void rv32i_close_file(rv32i_posix_file_s file)
 	return;
 }
 
-void rv32i_load_program(rv32i_hart_s* cpu, rv32i_posix_file_s file)
+void rv32i_load_program(rv32i_hart_s* cpu, rv32i_posix_file_s file, rv32i_cmdline_s cmd)
 {
 
-	uint32_t prgmemsz = rv32i_mem_contiguous(cpu, 0, file.st.st_size);
+	uint32_t prgmemsz = rv32i_mem_contiguous(cpu, cmd.load_at, file.st.st_size);
 
 	if ( prgmemsz < file.st.st_size )
 	{
@@ -198,7 +212,7 @@ void rv32i_load_program(rv32i_hart_s* cpu, rv32i_posix_file_s file)
 		exit(EXIT_FAILURE);
 	}
 
-	rv32i_mem_copyfromhost(cpu, 0, file.buf, file.st.st_size);
+	rv32i_mem_copyfromhost(cpu, cmd.load_at, file.buf, file.st.st_size);
 
 	return;
 }

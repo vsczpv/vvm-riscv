@@ -36,7 +36,7 @@ int main(int argc, char* argv[])
 
 	rv32i_hart_s cpu = rv32i_hart_init(cmd);
 
-	rv32i_load_program(&cpu, file);
+	rv32i_load_program(&cpu, file, cmd);
 
 	rv32i_close_file(file);
 

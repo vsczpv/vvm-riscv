@@ -63,7 +63,7 @@ rv32i_iomap_s* rv32i_mem_getiomap_byaddr(rv32i_hart_s* cpu, uint32_t addr)
 		}
 	}
 
- 	cpu->memoized_iomap = map;
+ 	if (map) cpu->memoized_iomap = map;
 
 	return map;
 }

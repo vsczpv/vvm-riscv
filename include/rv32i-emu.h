@@ -72,6 +72,7 @@ typedef struct rv32i_cmdline_s
 	bool is_using_mmap;
 	int choosen_iomaps_amnt;
 	rv32i_cmdline_chooseniomap_s choosen_iomaps[IOMAP_HARDCAP];
+	uint32_t load_at;
 } rv32i_cmdline_s;
 
 typedef struct rv32i_posix_file_s
@@ -102,7 +103,7 @@ extern bool noopstub;
 rv32i_cmdline_s    rv32i_parse_cmdline (int argc, char* argv[]);
 rv32i_posix_file_s rv32i_open_file     (rv32i_cmdline_s cmd);
 void               rv32i_close_file    (rv32i_posix_file_s file);
-void               rv32i_load_program  (rv32i_hart_s* cpu, rv32i_posix_file_s file);
+void               rv32i_load_program  (rv32i_hart_s* cpu, rv32i_posix_file_s file, rv32i_cmdline_s cmd);
 
 void rv32i_info_showmmap(rv32i_cmdline_s cmd);
 
