@@ -10,6 +10,7 @@ CARGS = 	$(OPT_CARGS) -I$(INCLUDE) -DVERSION='$(VERSION)' -Wall -Wextra -std=c2x
 
 OBJS = 		$(shell find $(SOURCE) -type f -name '*.c' | sed 's/\.c*$$/\.o/; s/$(SOURCE)\//$(BUILD)\//')
 HEADERS =	$(shell find $(INCLUDE) -type f -name '*.h')
+LIBS =          -lncursesw
 
 .PHONY: all clean builddir example_debugger example_userinput example_fibonacci example_buffers
 
@@ -45,4 +46,4 @@ example_loadat:    vvm-riscv
 	make -C samples/sample4 run
 
 vvm-riscv: builddir $(OBJS)
-	$(CC) $(CARGS) $(OBJS) -o $@
+	$(CC) $(CARGS) $(OBJS) $(LIBS) -o $@

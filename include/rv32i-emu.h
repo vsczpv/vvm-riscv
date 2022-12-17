@@ -25,6 +25,8 @@
 #include <stdbool.h>
 #include <sys/stat.h>
 
+#include "rv32i-tui.h"
+
 // VERSION is defined in the Makefile
 #ifndef VERSION
 #define VERSION "unreleased"
@@ -57,6 +59,7 @@ typedef struct rv32i_hart_s
 	int32_t regs[32];
 	uint32_t pc;
 	rv32i_iomap_s* memoized_iomap;
+	rv32i_debugger_tui_s tui;
 } rv32i_hart_s;
 
 typedef struct rv32i_cmdline_chooseniomap_s

@@ -28,6 +28,7 @@
 #include "rv32i-error.h"
 #include "rv32i-backtrace.h"
 #include "rv32i-mem.h"
+#include "rv32i-tui.h"
 
 bool rv32i_iomap_init(rv32i_hart_s* cpu)
 {
@@ -104,6 +105,8 @@ void rv32i_hart_destroy(rv32i_hart_s cpu)
 void rv32i_hart_execute(rv32i_hart_s* cpu)
 {
 
+	cpu->tui = rv32i_init_ncurses();
+
 	for (;;)
 	{
 
@@ -115,10 +118,12 @@ void rv32i_hart_execute(rv32i_hart_s* cpu)
 
 		if ( rv32i_inst_getopcode(inst) > RV32I_OPCODE_CUSTOM3 ) { rv32i_error_malinst(inst, cpu->pc); break; }
 
-		if ( debug ) system("clear"), rv32i_backtrace(cpu), getchar();
+		if ( debug ) rv32i_backtrace(cpu), getch();
 
 		if ( rv32i_inst_instructions[rv32i_inst_getopcode(inst)](inst, cpu) ) break;
 	}
+
+	rv32i_destroy_ncurses(cpu->tui);
 
 	return;
 }

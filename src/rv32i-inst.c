@@ -23,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include <curses.h>
 
 #include "rv32i-emu.h"
 #include "rv32i-inst.h"
@@ -678,8 +679,21 @@ bool rv32i_inst_system(int inst, rv32i_hart_s* cpu)
 			switch (cpu->regs[10])
 			{
 				case 0:
-					puts("\033[32;01mProgram finished gracefully.\033[0m");
+				{
+					if (debug)
+					{
+						clear();
+						printw("Program finished gracefully.");
+						mvchgat(0, 0, -1, A_BOLD, COLOR_GREEN, NULL);
+						getch();
+					}
+					else
+					{
+						puts("\033[32;01mProgram finished gracefully.\033[0m");
+					}
+
 					return true;
+				}
 				case 1:
 				{
 
@@ -700,9 +714,18 @@ bool rv32i_inst_system(int inst, rv32i_hart_s* cpu)
 						uint8_t* buf = (uint8_t*) malloc (size);
 						rv32i_mem_copyfromguest(cpu, cpu->regs[11], buf, size);
 
-						if (debug) system("clear");
-						fwrite(buf, (signed) size, 1, stdout);
-						if (debug) getchar();
+						if (debug)
+						{
+							clear();
+
+							mvprintw(0, 0, "%.*s", (int) size, buf);
+
+							getch();
+						}
+						else
+						{
+							fwrite(buf, (signed) size, 1, stdout);
+						}
 
 						free(buf);
 					}
@@ -716,8 +739,29 @@ bool rv32i_inst_system(int inst, rv32i_hart_s* cpu)
 
 						char* input = NULL;
 
-						if (debug) system("clear"), printf("\033[1;33mInput required:\033[0m\n");
-						scanf("%ms", &input);
+						if (debug)
+						{
+							clear();
+							curs_set(true);
+
+							mvprintw(0, 0, "Input required:\n");
+							mvchgat(0, 0, -1, A_BOLD, COLOR_YELLOW, NULL);
+
+							while (true)
+							{
+								mvscanw(1, 0, "%ms", &input);
+
+								if (!input) continue;
+								else if (input[0] != '\n') break;
+								else free(input);
+							}
+
+							curs_set(false);
+						}
+						else
+						{
+							scanf("%ms", &input);
+						}
 
 						if (!input) { perror("Fatal error on ECALL Read() scanf"); return true; }
 

@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <curses.h>
 
 #include "rv32i-inst.h"
 #include "rv32i-backtrace.h"
@@ -269,18 +270,20 @@ rv32i_mnemonic_string_s rv32i_backtrace_getmnemonic(uint32_t inst)
 void rv32i_backtrace(rv32i_hart_s* cpu)
 {
 
-	fprintf
+	clear();
+	attron(A_BOLD);
+
+	mvprintw
 	(
-		stderr,
-		"\033[1m"
-		"Backtrace: \033[1;33mra=%08x  sp=%08x  gp=%08x  tp=%08x\n\033[0m"
-		"           \033[1ma0=%08x  a1=%08x  a2=%08x  a3=%08x\n"
-		"           a4=%08x  a5=%08x  a7=%08x  a7=%08x\n"
-		"           \033[31mfp=%08x  \033[34ms1=%08x  s2=%08x  s3=%08x\n"
-		"           s4=%08x  s5=%08x  s6=%08x  s7=%08x\n"
-		"           s8=%08x  s9=%08x s10=%08x s11=%08x\n\033[36m"
+		0, 0,
+		"Backtrace: ra=%08x  sp=%08x  gp=%08x  tp=%08x\n"
+		"           a0=%08x  a1=%08x  a2=%08x  a3=%08x\n"
+		"           a4=%08x  a5=%08x  a6=%08x  a7=%08x\n"
+		"           fp=%08x  s1=%08x  s2=%08x  s3=%08x\n"
+		"           s4=%08x  s6=%08x  s6=%08x  s7=%08x\n"
+		"           s8=%08x  s9=%08x s10=%08x s11=%08x\n"
 		"           t0=%08x  t1=%08x  t2=%08x  t3=%08x\n"
-		"           t4=%08x  t5=%08x  t6=%08x  \033[33mpc=%08x\033[0m\n\n",
+		"           t4=%08x  t5=%08x  t6=%08x  pc=%08x",
 		cpu->regs[1],  cpu->regs[2],  cpu->regs[3],  cpu->regs[4],
 		cpu->regs[10], cpu->regs[11],
 		cpu->regs[12], cpu->regs[13], cpu->regs[14], cpu->regs[15],
@@ -292,7 +295,7 @@ void rv32i_backtrace(rv32i_hart_s* cpu)
 		cpu->pc
 	);
 
-	for (unsigned int i = cpu->pc-32; i != cpu->pc+36; i+=4)
+	int j = 0; for (unsigned int i = cpu->pc-32; i != cpu->pc+36; i+=4)
 	{
 
 		if ( rv32i_oob_addr(cpu, i) ) continue;
@@ -302,23 +305,44 @@ void rv32i_backtrace(rv32i_hart_s* cpu)
 		bool unknown = ins.inst[0] == '?';
 		bool null = ins.inst[0] == '0';
 		char* noarg = "\0";
+
 		     if (unknown) ins.inst = "Unknown", ins.arg1 = noarg, ins.arg2 = noarg, ins.arg3 = noarg;
 		else if (null)    ins.inst = "Null",    ins.arg1 = noarg, ins.arg2 = noarg, ins.arg3 = noarg;
 
-		fprintf
+		mvprintw(10 + j, 0, "0x%08x:", i);
+
+		mvprintw
 		(
-			stderr,
-			"\033[0;1%sm0x%08x:\t%s %s%s%s%s%s\t%s\n",
-			cur ? ";32" : unknown ? ";33" : null ? ";30" : "",
-			i,
+			10 + j, 20,
+			"%s %s%s%s%s%s",
 			ins.inst,
 			ins.arg1, ins.arg2[0] ? ", " : "",
 			ins.arg2, ins.arg3[0] || ins.immd[0] ? ", " : "",
-			ins.immd[0] ? ins.immd : ins.arg3,
-			cur ? "<-" : ""
+			ins.immd[0] ? ins.immd : ins.arg3
 		);
+
+		mvprintw(10 + j++, 50, "%s", cur ? "<-" : "");
+
+		if (null)    mvchgat(10 + j - 1, 0, -1, A_DIM,  COLOR_WHITE,  NULL);
+		if (unknown) mvchgat(10 + j - 1, 0, -1, A_BOLD, COLOR_YELLOW, NULL);
+		if (cur)     mvchgat(10 + j - 1, 0, -1, A_BOLD, COLOR_GREEN,  NULL);
+
+		mvchgat(6, 11, -1, A_BOLD, COLOR_CYAN,   NULL);
+		mvchgat(7, 11, -1, A_BOLD, COLOR_CYAN,   NULL);
+
+		mvchgat(0, 11, -1, A_BOLD, COLOR_YELLOW, NULL);
+		mvchgat(7, 49, -1, A_BOLD, COLOR_YELLOW, NULL);
+
+		mvchgat(3, 11, -1, A_BOLD, COLOR_RED,    NULL);
+
+		mvchgat(3, 23, -1, A_BOLD, COLOR_BLUE,   NULL);
+		mvchgat(4, 11, -1, A_BOLD, COLOR_BLUE,   NULL);
+		mvchgat(5, 11, -1, A_BOLD, COLOR_BLUE,   NULL);
+
 	}
-	puts("\033[0m");
+
+	attroff(A_BOLD);
+	refresh();
 
 	return;
 }
