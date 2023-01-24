@@ -30,18 +30,22 @@ rv32i_debugger_tui_s rv32i_init_ncurses(void)
 
 	rv32i_debugger_tui_s tui = { 0 };
 
-	if (debug) tui.win = initscr();
+	if (debug)
+	{
 
-	curs_set(false);
+		tui.win = initscr();
 
-	if (start_color() == ERR) { debug ? endwin() : 0; rv32i_error_nocolor(); exit(EXIT_FAILURE); }
+		curs_set(false);
 
-	use_default_colors();
+		if (start_color() == ERR) { rv32i_error_nocolor(); exit(EXIT_FAILURE); }
 
-	short colors[] = { COLOR_WHITE, COLOR_RED, COLOR_GREEN, COLOR_YELLOW, COLOR_BLUE, COLOR_CYAN };
+		use_default_colors();
 
-	for (unsigned int i = 0; i < sizeof(colors)/sizeof(short); i++) init_pair(colors[i], colors[i], -1);
+		short colors[] = { COLOR_WHITE, COLOR_RED, COLOR_GREEN, COLOR_YELLOW, COLOR_BLUE, COLOR_CYAN };
 
+		for (unsigned int i = 0; i < sizeof(colors)/sizeof(short); i++) init_pair(colors[i], colors[i], -1);
+
+	}
 	return tui;
 }
 
@@ -52,7 +56,7 @@ void rv32i_destroy_ncurses(rv32i_debugger_tui_s tui)
 
 	curs_set(true);
 
-	if (debug) endwin();
+	endwin();
 
 	return;
 }
