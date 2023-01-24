@@ -1,5 +1,5 @@
 /*
- * Copyright © 2022 Vinícius Schütz Piva
+ * Copyright © 2022, 2023 Vinícius Schütz Piva
  *
  * This file is part of vvm-riscv
  *
@@ -72,7 +72,7 @@ void version(void)
 	puts
 	(
 		"vvm-riscv, version " VERSION "\n"
-		"Copyright (C) 2022 Vinícius Schütz Piva\n"
+		"Copyright (C) 2022, 2023 Vinícius Schütz Piva\n"
 		"Licensed under GNU GPL-3-or-later <http://gnu.org/licenses/gpl.html>\n"
 		"\n"
 		"This is free software; you are free to change and redistribute it.\n"
