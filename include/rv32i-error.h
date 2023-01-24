@@ -150,4 +150,11 @@
 	__FILE__, __LINE__, __func__ \
 )
 
+#define rv32i_error_nocolor() fprintf \
+( \
+	stderr, \
+	"%s:%i: error: In function %s: Terminal must have color support to use the built-in debugger.\n", \
+	__FILE__, __LINE__, __func__ \
+)
+
 #endif // RV32I_ERROR_H_

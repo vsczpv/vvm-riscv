@@ -19,9 +19,11 @@
  */
 
 #include <curses.h>
+#include <stdlib.h>
 
 #include "rv32i-emu.h"
 #include "rv32i-tui.h"
+#include "rv32i-error.h"
 
 rv32i_debugger_tui_s rv32i_init_ncurses(void)
 {
@@ -32,9 +34,8 @@ rv32i_debugger_tui_s rv32i_init_ncurses(void)
 
 	curs_set(false);
 
-	/* TODO: error handling */
+	if (start_color() == ERR) { debug ? endwin() : 0; rv32i_error_nocolor(); exit(EXIT_FAILURE); }
 
-	start_color();
 	use_default_colors();
 
 	short colors[] = { COLOR_WHITE, COLOR_RED, COLOR_GREEN, COLOR_YELLOW, COLOR_BLUE, COLOR_CYAN };
