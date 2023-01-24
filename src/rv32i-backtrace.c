@@ -341,6 +341,53 @@ void rv32i_backtrace(rv32i_hart_s* cpu)
 
 	}
 
+	mvprintw(0, 64, "Frame: At %08x", cpu->regs[8]);
+
+	j = 0;
+	int k = 0;
+	char datastring[9] = { [8] = '\0' };
+
+	for (unsigned int i = cpu->regs[8]-96; i != (unsigned) cpu->regs[8]+96; i++)
+	{
+
+		if ( rv32i_oob_addr(cpu, i) )
+		{
+			mvprintw(2 + j, 64 + (k*3), ".. ");
+			mvchgat(2 + j, 64 + (k*3), 3, A_DIM, COLOR_WHITE, NULL);
+			datastring[k] = '.';
+			goto skip;
+		};
+
+		uint32_t value = rv32i_getbyte(cpu, i);
+
+		datastring[k] = (char) value;
+
+		if (datastring[k] < 0x20 || datastring[k] >= 0x7f) datastring[k] = '.';
+
+		mvprintw(2 + j, 64 + (k*3), "%02x", value);
+
+		switch (value)
+		{
+			case 0x00:
+			{
+				mvchgat(2 + j, 64 + (k*3), 3, A_DIM, COLOR_WHITE, NULL);
+				break;
+			}
+			default: break;
+		}
+
+		skip:
+
+		k++;
+
+		if (k == 8)
+		{
+			mvprintw(2 + j, 64 + (k*3), "  |%s|", datastring);
+			k = 0, j++;
+		}
+
+	}
+
 	attroff(A_BOLD);
 	refresh();
 
