@@ -103,10 +103,18 @@ uint32_t rv32i_getinst(rv32i_hart_s* cpu, uint32_t index)
 
 	uint8_t* addr = rv32i_mem_trueaddr(cpu, index);
 
+	/*
+	* -fsanitize=undefined complains about shifting an 8-bit value
+	* into a 32-bit signed integer, as the last bit is reserved for
+	* the sign bit. Even though inst is uint32_t, it seems that
+	* it's unsignedness isn't forwarded to the other side of the
+	* assignment, so a explicit cast must be made here to satisfy ASAN.
+	*/
+
  	uint32_t inst = addr[0] << 0  |
 	                addr[1] << 8  |
 	                addr[2] << 16 |
-	                addr[3] << 24;
+	     (unsigned) addr[3] << 24;
 
 	return inst;
 }
@@ -129,7 +137,10 @@ uint32_t rv32i_getword(rv32i_hart_s* cpu, uint32_t index)
 
 	uint8_t* addr = rv32i_mem_trueaddr(cpu, index);
 
-	uint32_t inst = addr[0] << 24 |
+	/* Same issue as in rv32i_getinst() */
+
+	uint32_t inst =
+	     (unsigned) addr[0] << 24 |
 	                addr[1] << 16 |
 	                addr[2] << 8  |
 	                addr[3] << 0;

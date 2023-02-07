@@ -20,6 +20,10 @@ To compile, run:
 
 `make`
 
+It is possible to compile with debug information:
+
+`RV32I_DEBUG=1 make`
+
 To execute the examples, run:
 
  * For the User-Input example: `make example_userinput`

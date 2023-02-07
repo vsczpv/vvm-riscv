@@ -1,16 +1,21 @@
 VERSION = "0.3.1"
 
-SOURCE =	src
-BUILD =		build
-INCLUDE =	include
+SOURCE =      src
+BUILD =       build
+INCLUDE =     include
 
-CC =		cc
+CC =          cc
 OPT_CARGS :=
-CARGS = 	$(OPT_CARGS) -I$(INCLUDE) -DVERSION='$(VERSION)' -Wall -Wextra -std=c2x -Wno-misleading-indentation -Wno-missing-field-initializers -g
+CARGS =       $(OPT_CARGS) -I$(INCLUDE) -DVERSION='$(VERSION)' -Wall -Wextra -std=c2x -Wno-misleading-indentation -Wno-missing-field-initializers
+DEBUG_CARGS =  -g -fsanitize=address -fsanitize=pointer-compare -fsanitize=undefined
 
-OBJS = 		$(shell find $(SOURCE) -type f -name '*.c' | sed 's/\.c*$$/\.o/; s/$(SOURCE)\//$(BUILD)\//')
-HEADERS =	$(shell find $(INCLUDE) -type f -name '*.h')
-LIBS =          -lncursesw
+ifeq (${RV32I_DEBUG},1)
+	CARGS += $(DEBUG_CARGS)
+endif
+
+OBJS =       $(shell find $(SOURCE) -type f -name '*.c' | sed 's/\.c*$$/\.o/; s/$(SOURCE)\//$(BUILD)\//')
+HEADERS =    $(shell find $(INCLUDE) -type f -name '*.h')
+LIBS =       -lncursesw
 
 .PHONY: all clean builddir example_debugger example_userinput example_fibonacci example_buffers
 
