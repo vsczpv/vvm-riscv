@@ -181,7 +181,7 @@ Usage: vvm-riscv [-m <ram>|--memory-map <addr> <size>] [--show-map] [-h|--help]
 
 Written by Vinícius Schütz Piva <vinicius.vsczpv@outlook.com>.
 
-Started on 16/01/2022, last updated 25/08/2022.
+Started on 16/01/2022, last updated 24/01/2023.
 
 # License
 ---
