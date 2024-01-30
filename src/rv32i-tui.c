@@ -64,7 +64,7 @@ rv32i_debugger_tui_s rv32i_init_ncurses(void)
 	return tui;
 }
 
-void rv32i_destroy_ncurses(rv32i_debugger_tui_s tui)
+void rv32i_destroy_ncurses(rv32i_debugger_tui_s* tui)
 {
 
 	(void) tui;

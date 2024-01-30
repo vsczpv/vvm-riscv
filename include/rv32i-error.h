@@ -25,9 +25,11 @@
 #include "rv32i-tui.h"
 #include "rv32i-vt-colors.h"
 
+void rv32i_error_fatal_fprintf(FILE* stream, const char* restrict fmt, ...);
+
 #define RV32I_TEMPLATE_ERROR_TRIPLET VT_BOLD VT_FORE "%s:%i: " VT_RED "error: " VT_END "In function " VT_BOLD "'%s'" VT_END ": "
 
-#define rv32i_error_inval(inst_name, subinst, inst, pc) fprintf \
+#define rv32i_error_inval(inst_name, subinst, inst, pc) rv32i_error_fatal_fprintf \
 ( \
 	stderr, \
 	RV32I_TEMPLATE_ERROR_TRIPLET  \
@@ -35,7 +37,7 @@
 	__FILE__, __LINE__, __func__, inst_name, subinst, inst, pc \
 )
 
-#define rv32i_error_inval2(inst_name, subinst7, subinst, inst, pc) fprintf \
+#define rv32i_error_inval2(inst_name, subinst7, subinst, inst, pc) rv32i_error_fatal_fprintf \
 ( \
 	stderr, \
 	RV32I_TEMPLATE_ERROR_TRIPLET  \
@@ -43,7 +45,7 @@
 	__FILE__, __LINE__, __func__, inst_name, subinst7, subinst, inst, pc \
 )
 
-#define rv32i_error_inval_nosubtype(inst_name, inst, pc) fprintf \
+#define rv32i_error_inval_nosubtype(inst_name, inst, pc) rv32i_error_fatal_fprintf \
 ( \
 	stderr, \
 	RV32I_TEMPLATE_ERROR_TRIPLET  \
@@ -51,7 +53,7 @@
 	__FILE__, __LINE__, __func__, inst_name, inst, pc \
 )
 
-#define rv32i_error_unsupported_inst_fmt(inst, pc) fprintf \
+#define rv32i_error_unsupported_inst_fmt(inst, pc) rv32i_error_fatal_fprintf \
 ( \
 	stderr, \
 	RV32I_TEMPLATE_ERROR_TRIPLET  \
@@ -59,7 +61,7 @@
 	__FILE__, __LINE__, __func__, inst, pc \
 )
 
-#define rv32i_error_inst_noimpl(inst_name, inst, pc) fprintf \
+#define rv32i_error_inst_noimpl(inst_name, inst, pc) rv32i_error_fatal_fprintf \
 ( \
 	stderr, \
 	RV32I_TEMPLATE_ERROR_TRIPLET  \
@@ -67,7 +69,7 @@
 	__FILE__, __LINE__, __func__, inst_name, inst, pc \
 )
 
-#define rv32i_error_mis_jump(inst_name, immd, inst, pc) fprintf \
+#define rv32i_error_mis_jump(inst_name, immd, inst, pc) rv32i_error_fatal_fprintf \
 ( \
 	stderr, \
 	RV32I_TEMPLATE_ERROR_TRIPLET  \
@@ -75,7 +77,7 @@
 	__FILE__, __LINE__, __func__, inst_name, immd, inst, pc \
 )
 
-#define rv32i_error_oob(op_name, pc) fprintf \
+#define rv32i_error_oob(op_name, pc) rv32i_error_fatal_fprintf \
 ( \
 	stderr, \
 	RV32I_TEMPLATE_ERROR_TRIPLET  \
@@ -83,7 +85,7 @@
 	__FILE__, __LINE__, __func__, op_name, pc \
 )
 
-#define rv32i_error_nofile(filename) fprintf \
+#define rv32i_error_nofile(filename) rv32i_error_fatal_fprintf \
 ( \
 	stderr, \
 	RV32I_TEMPLATE_ERROR_TRIPLET  \
@@ -91,7 +93,7 @@
 	__FILE__, __LINE__, __func__, filename \
 )
 
-#define rv32i_error_aintfile(filename) fprintf \
+#define rv32i_error_aintfile(filename) rv32i_error_fatal_fprintf \
 ( \
 	stderr, \
 	RV32I_TEMPLATE_ERROR_TRIPLET  \
@@ -100,7 +102,7 @@
 )
 
 /* """"Malformed"""" instructions means I have no idea what bug causes them falling through everything else */
-#define rv32i_error_malinst(inst, pc) fprintf \
+#define rv32i_error_malinst(inst, pc) rv32i_error_fatal_fprintf \
 ( \
 	stderr, \
 	RV32I_TEMPLATE_ERROR_TRIPLET  \
@@ -108,7 +110,7 @@
 	__FILE__, __LINE__, __func__, inst, pc \
 )
 
-#define rv32i_error_oom(need, have) fprintf \
+#define rv32i_error_oom(need, have) rv32i_error_fatal_fprintf \
 ( \
 	stderr, \
 	RV32I_TEMPLATE_ERROR_TRIPLET  \
@@ -116,7 +118,7 @@
 	__FILE__, __LINE__, __func__, need, have \
 )
 
-#define rv32i_too_many_maps()  fprintf \
+#define rv32i_too_many_maps()  rv32i_error_fatal_fprintf \
 ( \
 	stderr, \
 	RV32I_TEMPLATE_ERROR_TRIPLET  \
@@ -125,7 +127,7 @@
 )
 
 
-#define rv32i_overlapping_iomaps(of)  fprintf \
+#define rv32i_overlapping_iomaps(of)  rv32i_error_fatal_fprintf \
 ( \
 	stderr, \
 	RV32I_TEMPLATE_ERROR_TRIPLET  \
@@ -137,7 +139,7 @@
 	of.b.addr, of.b.addr + of.b.size - 1 \
 )
 
-#define rv32i_nonaligned_iomap(addr)  fprintf \
+#define rv32i_nonaligned_iomap(addr)  rv32i_error_fatal_fprintf \
 ( \
 	stderr, \
 	RV32I_TEMPLATE_ERROR_TRIPLET  \
@@ -146,7 +148,7 @@
 	addr \
 )
 
-#define rv32i_nomap_atexec() fprintf \
+#define rv32i_nomap_atexec() rv32i_error_fatal_fprintf \
 ( \
 	stderr, \
 	RV32I_TEMPLATE_ERROR_TRIPLET  \
@@ -154,7 +156,7 @@
 	__FILE__, __LINE__, __func__ \
 )
 
-#define rv32i_error_nocolor() fprintf \
+#define rv32i_error_nocolor() rv32i_error_fatal_fprintf \
 ( \
 	stderr, \
 	RV32I_TEMPLATE_ERROR_TRIPLET  \
@@ -162,7 +164,7 @@
 	__FILE__, __LINE__, __func__ \
 )
 
-#define rv32i_error_toosmallwindow(tui) fprintf \
+#define rv32i_error_toosmallwindow(tui) rv32i_error_fatal_fprintf \
 ( \
 	stderr, \
 	RV32I_TEMPLATE_ERROR_TRIPLET  \

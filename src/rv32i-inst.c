@@ -680,17 +680,13 @@ bool rv32i_inst_system(int inst, rv32i_hart_s* cpu)
 			{
 				case 0:
 				{
+					const char msg[] = VT_BOLD VT_GREEN "Program finished gracefully." VT_END;
+
 					if (debug)
-					{
-						clear();
-						printw("Program finished gracefully.");
-						mvchgat(0, 0, -1, A_BOLD, COLOR_GREEN, NULL);
-						getch();
-					}
-					else
-					{
-						puts("\033[32;01mProgram finished gracefully.\033[0m");
-					}
+						/* NOTE: Not actually fatal, but it does destroy ncurses */
+						rv32i_error_fatal_fprintf(stderr, "%s\n", msg);
+
+					else puts(msg);
 
 					return true;
 				}

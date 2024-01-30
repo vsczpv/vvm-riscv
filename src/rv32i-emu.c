@@ -123,7 +123,7 @@ void rv32i_hart_execute(rv32i_hart_s* cpu)
 		if ( rv32i_inst_instructions[rv32i_inst_getopcode(inst)](inst, cpu) ) break;
 	}
 
-	rv32i_destroy_ncurses(cpu->tui);
+	rv32i_destroy_ncurses(&cpu->tui);
 
 	return;
 }

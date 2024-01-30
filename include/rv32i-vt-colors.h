@@ -1,5 +1,5 @@
 /*
- * Copyright © 2022-2024 Vinícius Schütz Piva
+ * Copyright © 2024 Vinícius Schütz Piva
  *
  * This file is part of vvm-riscv
  *
@@ -21,11 +21,12 @@
 #ifndef RV32I_VT_COLORS_H_
 #define RV32I_VT_COLORS_H_
 
-#define VT_END  "\033[0m"
-#define VT_BOLD "\033[1m"
+#define VT_END   "\033[0m"
+#define VT_BOLD  "\033[1m"
 
-#define VT_RED  "\033[31m"
+#define VT_RED   "\033[31m"
+#define VT_GREEN "\033[32m"
 
-#define VT_FORE "\033[39m"
+#define VT_FORE  "\033[39m"
 
 #endif // RV32I_VT_COLORS_H_
