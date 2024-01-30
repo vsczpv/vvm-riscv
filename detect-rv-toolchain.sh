@@ -7,7 +7,7 @@ RISCV_PREFIXES="riscv64-elf
 # Cicle through all prefixes
 for prefix in $RISCV_PREFIXES ; do
 
-	which $prefix-gcc > /dev/null
+	which $prefix-gcc >/dev/null 2>&1
 
 	# Prefix found
 	if [ $? -eq '0' ] ; then
