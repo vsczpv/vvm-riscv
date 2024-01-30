@@ -17,9 +17,9 @@ run: main.bin
 # TODO: Fix ISA mis-match warning
 #       Fix reordering of non-static arrays
 main.bin: main.c ministd.c ministd.h arith.c main.ld _start.S
-	riscv64-elf-as -march=rv32i2p0 -mabi=ilp32 _start.S -o _start.o
-	riscv64-elf-gcc $(CARGS) main.c
-	riscv64-elf-gcc $(CARGS) arith.c
-	riscv64-elf-gcc $(CARGS) ministd.c
-	riscv64-elf-ld _start.o arith.o ministd.o main.o -T main.ld --oformat=elf32-littleriscv -o main.out
-	riscv64-elf-objcopy --dump-section .text=main.bin main.out
+	$(CROSS)-as -march=rv32i2p0 -mabi=ilp32 _start.S -o _start.o
+	$(CROSS)-gcc $(CARGS) main.c
+	$(CROSS)-gcc $(CARGS) arith.c
+	$(CROSS)-gcc $(CARGS) ministd.c
+	$(CROSS)-ld _start.o arith.o ministd.o main.o -T main.ld --oformat=elf32-littleriscv -o main.out
+	$(CROSS)-objcopy --dump-section .text=main.bin main.out

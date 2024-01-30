@@ -1,7 +1,7 @@
 # VVM-RISCV
 ---
 
-vvm-riscv is a minimal RISC-V instruction-set-simulator oriented for educational and recreational purposes. It exclusively runs flat binaries and implements the Unprivileged-20191213 specification.
+vvm-riscv is a minimal, hobbyist RISC-V instruction-set-simulator for Linux. It exclusively runs flat binaries and implements the Unprivileged-20191213 specification.
 
 # Dependencies
 ---
@@ -9,10 +9,7 @@ vvm-riscv is a minimal RISC-V instruction-set-simulator oriented for educational
 The only compile time dependency is a C23 compiler.
 Tested compilers are: GCC 12.2.0, Clang 14.0.6.
 
-NOTE: cproc is [currently uncompilable due to a bug](https://todo.sr.ht/~mcf/cproc/83), and compatibility with it will be tested in the next release.
-
 To compile the examples, you need the GNU RISCV64 toolchain (or compatible).
-More specifically you want the `riscv64-elf-*` series of binaries.
 
 # Compiling and Running
 ---
@@ -69,8 +66,6 @@ $ vvm-riscv --memory-map 0x1000 16 \
             program.bin
 ```
 
-NOTE: `--load-at` is not necessary to use `--memory-map`, and is there for cosmetical reasons.
-
 # Stub ECALL
 ---
 
@@ -90,7 +85,7 @@ Invalid or missing instructions are treated as emulation errors since without th
 By default, programs are loaded at address 0, with 16KiB of memory.
 Out of bounds access stops the emulation.
 
-Invalid or unimplemented instructions are treated as "Unknown" by the backtrace dissasembler.
+Invalid or unimplemented instructions are treated as "Unknown" by the debugger.
 
 As cited, programs are to be loaded as flat binaries. Assuming the GNU toolchain, you can do:
 
@@ -100,7 +95,7 @@ As cited, programs are to be loaded as flat binaries. Assuming the GNU toolchain
 
 `riscv64-elf-objcopy --dump-section .text=FILE.bin FILE.out`
 
-The linker script is used to relocate everything to the target execution address; some linker script examples are provided inside `samples/`.
+The `FILE.ld` linekr script is used to relocate everything to the target execution address; some linker script examples are provided inside `samples/`.
 
 # Full usage
 ---
@@ -185,7 +180,7 @@ Usage: vvm-riscv [-m <ram>|--memory-map <addr> <size>] [--show-map] [-h|--help]
 
 Written by Vinícius Schütz Piva <vinicius.vsczpv@outlook.com>.
 
-Started on 16/01/2022, last updated 24/01/2023.
+Started on 16/01/2022, last updated 29/01/2024.
 
 # License
 ---
