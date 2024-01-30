@@ -18,27 +18,14 @@
  *
  */
 
-#ifndef RV32I_TUI_H_
-#define RV32I_TUI_H_
+#ifndef RV32I_VT_COLORS_H_
+#define RV32I_VT_COLORS_H_
 
-#include <curses.h>
+#define VT_END  "\033[0m"
+#define VT_BOLD "\033[1m"
 
-typedef struct rv32i_debugger_tui_s
-{
-	WINDOW* win;
-	int max_width;
-	int max_height;
-} rv32i_debugger_tui_s;
+#define VT_RED  "\033[31m"
 
-rv32i_debugger_tui_s rv32i_init_ncurses    (void);
-void                 rv32i_destroy_ncurses (rv32i_debugger_tui_s tui);
+#define VT_FORE "\033[39m"
 
-void rv32i_debbuger_tui_refresh_dimensions(rv32i_debugger_tui_s* tui);
-
-#define RV32I_TUI_MINWIDTH  100
-#define RV32I_TUI_MINHEIGHT 29
-
-#define RV32I_TUI_COMMAND_NEXT 'n'
-#define RV32I_TUI_COMMAND_QUIT 'q'
-
-#endif // RV32I_TUI_H_
+#endif // RV32I_VT_COLORS_H_

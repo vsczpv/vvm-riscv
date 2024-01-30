@@ -1,5 +1,5 @@
 /*
- * Copyright © 2022, 2023 Vinícius Schütz Piva
+ * Copyright © 2022-2024 Vinícius Schütz Piva
  *
  * This file is part of vvm-riscv
  *
