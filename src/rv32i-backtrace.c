@@ -276,7 +276,7 @@ void rv32i_backtrace(rv32i_hart_s* cpu)
 	mvprintw
 	(
 		0, 0,
-		"Backtrace: ra=%08x  sp=%08x  gp=%08x  tp=%08x\n"
+		"Registers: ra=%08x  sp=%08x  gp=%08x  tp=%08x\n"
 		"           a0=%08x  a1=%08x  a2=%08x  a3=%08x\n"
 		"           a4=%08x  a5=%08x  a6=%08x  a7=%08x\n"
 		"           fp=%08x  s1=%08x  s2=%08x  s3=%08x\n"

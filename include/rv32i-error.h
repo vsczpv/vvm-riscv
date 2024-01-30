@@ -22,6 +22,7 @@
 #define RV32I_ERROR_H_
 
 #include "rv32i-emu.h"
+#include "rv32i-tui.h"
 
 #define rv32i_error_inval(inst_name, subinst, inst, pc) fprintf \
 ( \
@@ -153,8 +154,15 @@
 #define rv32i_error_nocolor() fprintf \
 ( \
 	stderr, \
-	"%s:%i: error: In function %s: Terminal must have color support to use the built-in debugger.\n", \
+	"\033[1;39m%s:%i: \033[31merror: \033[0mIn function \033[1m'%s'\033[0m: Terminal must have color support.\n", \
 	__FILE__, __LINE__, __func__ \
+)
+
+#define rv32i_error_toosmallwindow(tui) fprintf \
+( \
+	stderr, \
+	"\033[1;39m%s:%i: \033[31merror: \033[0mIn function \033[1m'%s'\033[0m: Terminal must be atleast %ix%i in size, current is %ix%i.\n", \
+	__FILE__, __LINE__, __func__, RV32I_TUI_MINWIDTH, RV32I_TUI_MINHEIGHT, tui.max_width, tui.max_height \
 )
 
 #endif // RV32I_ERROR_H_

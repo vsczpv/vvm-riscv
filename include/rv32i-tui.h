@@ -26,9 +26,14 @@
 typedef struct rv32i_debugger_tui_s
 {
 	WINDOW* win;
+	int max_width;
+	int max_height;
 } rv32i_debugger_tui_s;
 
 rv32i_debugger_tui_s rv32i_init_ncurses    (void);
 void                 rv32i_destroy_ncurses (rv32i_debugger_tui_s tui);
+
+#define RV32I_TUI_MINWIDTH  100
+#define RV32I_TUI_MINHEIGHT 27
 
 #endif // RV32I_TUI_H_

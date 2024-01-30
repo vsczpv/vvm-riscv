@@ -25,6 +25,8 @@
 #include "rv32i-tui.h"
 #include "rv32i-error.h"
 
+#define curses_emerg_leave() endwin(); exit(EXIT_FAILURE)
+
 rv32i_debugger_tui_s rv32i_init_ncurses(void)
 {
 
@@ -35,9 +37,7 @@ rv32i_debugger_tui_s rv32i_init_ncurses(void)
 
 		tui.win = initscr();
 
-		curs_set(false);
-
-		if (start_color() == ERR) { rv32i_error_nocolor(); exit(EXIT_FAILURE); }
+		if (start_color() == ERR) { rv32i_error_nocolor(); curses_emerg_leave(); }
 
 		use_default_colors();
 
@@ -45,6 +45,14 @@ rv32i_debugger_tui_s rv32i_init_ncurses(void)
 
 		for (unsigned int i = 0; i < sizeof(colors)/sizeof(short); i++) init_pair(colors[i], colors[i], -1);
 
+		getmaxyx(tui.win, tui.max_height, tui.max_width);
+
+		if (tui.max_height < RV32I_TUI_MINHEIGHT || tui.max_width < RV32I_TUI_MINWIDTH)
+		{
+			rv32i_error_toosmallwindow(tui); curses_emerg_leave();
+		}
+
+		curs_set(false);
 	}
 	return tui;
 }
