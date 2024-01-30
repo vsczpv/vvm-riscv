@@ -51,4 +51,6 @@ extern char* rv32i_backtrace_registers[32];
 
 extern char* rv32i_mnemonic_null;
 
+#define RV32I_STACKDISPLAY_WIDTH 36
+
 #endif // RV32I_BACKTRACE_H_

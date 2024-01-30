@@ -33,6 +33,8 @@ typedef struct rv32i_debugger_tui_s
 rv32i_debugger_tui_s rv32i_init_ncurses    (void);
 void                 rv32i_destroy_ncurses (rv32i_debugger_tui_s tui);
 
+void rv32i_debbuger_tui_refresh_dimensions(rv32i_debugger_tui_s* tui);
+
 #define RV32I_TUI_MINWIDTH  100
 #define RV32I_TUI_MINHEIGHT 27
 

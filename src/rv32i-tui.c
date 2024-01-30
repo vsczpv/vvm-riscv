@@ -27,6 +27,11 @@
 
 #define curses_emerg_leave() endwin(); exit(EXIT_FAILURE)
 
+void rv32i_debbuger_tui_refresh_dimensions(rv32i_debugger_tui_s* tui)
+{
+	getmaxyx(tui->win, tui->max_height, tui->max_width);
+}
+
 rv32i_debugger_tui_s rv32i_init_ncurses(void)
 {
 
@@ -34,6 +39,8 @@ rv32i_debugger_tui_s rv32i_init_ncurses(void)
 
 	if (debug)
 	{
+
+		use_env(true);
 
 		tui.win = initscr();
 
@@ -45,7 +52,7 @@ rv32i_debugger_tui_s rv32i_init_ncurses(void)
 
 		for (unsigned int i = 0; i < sizeof(colors)/sizeof(short); i++) init_pair(colors[i], colors[i], -1);
 
-		getmaxyx(tui.win, tui.max_height, tui.max_width);
+		rv32i_debbuger_tui_refresh_dimensions(&tui);
 
 		if (tui.max_height < RV32I_TUI_MINHEIGHT || tui.max_width < RV32I_TUI_MINWIDTH)
 		{

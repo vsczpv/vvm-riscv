@@ -118,7 +118,19 @@ void rv32i_hart_execute(rv32i_hart_s* cpu)
 
 		if ( rv32i_inst_getopcode(inst) > RV32I_OPCODE_CUSTOM3 ) { rv32i_error_malinst(inst, cpu->pc); break; }
 
-		if ( debug ) rv32i_backtrace(cpu), getch();
+		if ( debug )
+		{
+			int input; do
+			{
+				rv32i_backtrace(cpu);
+
+				input = wgetch(cpu->tui.win);
+
+				if (input == KEY_RESIZE)
+					rv32i_debbuger_tui_refresh_dimensions(&cpu->tui);
+			}
+			while (input == KEY_RESIZE);
+		}
 
 		if ( rv32i_inst_instructions[rv32i_inst_getopcode(inst)](inst, cpu) ) break;
 	}
