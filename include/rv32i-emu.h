@@ -110,4 +110,6 @@ void               rv32i_load_program  (rv32i_hart_s* cpu, rv32i_posix_file_s fi
 
 void rv32i_info_showmmap(rv32i_cmdline_s cmd);
 
+bool rv32i_handle_dbg(rv32i_hart_s* cpu);
+
 #endif /* RV32I_EMU_H_ */

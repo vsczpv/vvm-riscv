@@ -118,19 +118,7 @@ void rv32i_hart_execute(rv32i_hart_s* cpu)
 
 		if ( rv32i_inst_getopcode(inst) > RV32I_OPCODE_CUSTOM3 ) { rv32i_error_malinst(inst, cpu->pc); break; }
 
-		if ( debug )
-		{
-			int input; do
-			{
-				rv32i_backtrace(cpu);
-
-				input = wgetch(cpu->tui.win);
-
-				if (input == KEY_RESIZE)
-					rv32i_debbuger_tui_refresh_dimensions(&cpu->tui);
-			}
-			while (input == KEY_RESIZE);
-		}
+		if ( debug ) { if (rv32i_handle_dbg(cpu)) break; };
 
 		if ( rv32i_inst_instructions[rv32i_inst_getopcode(inst)](inst, cpu) ) break;
 	}
@@ -138,4 +126,27 @@ void rv32i_hart_execute(rv32i_hart_s* cpu)
 	rv32i_destroy_ncurses(cpu->tui);
 
 	return;
+}
+
+bool rv32i_handle_dbg(rv32i_hart_s* cpu)
+{
+
+	bool parsing = true;
+
+	while (parsing)
+	{
+		rv32i_backtrace(cpu);
+
+		int input = wgetch(cpu->tui.win);
+
+		if (input == KEY_RESIZE) { rv32i_debbuger_tui_refresh_dimensions(&cpu->tui); continue; }
+
+		else switch ((char) input)
+		{
+			case RV32I_TUI_COMMAND_NEXT: parsing = false; break;
+			case RV32I_TUI_COMMAND_QUIT:                  return true;
+		}
+	}
+
+	return false;
 }

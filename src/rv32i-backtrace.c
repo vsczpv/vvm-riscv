@@ -420,6 +420,17 @@ void rv32i_backtrace(rv32i_hart_s* cpu)
 
 	}
 
+	/* Print cheatsheet */
+	attron (A_REVERSE | A_BOLD);
+	mvprintw(cpu->tui.max_height - 1, 0, " %c", RV32I_TUI_COMMAND_NEXT);
+	attroff(A_REVERSE | A_BOLD);
+	printw(" Exec. Next Inst. ");
+
+	attron (A_REVERSE | A_BOLD);
+	printw(" %c", RV32I_TUI_COMMAND_QUIT);
+	attroff(A_REVERSE | A_BOLD);
+	printw(" Quit VVM ");
+
 	attroff(A_BOLD);
 	refresh();
 

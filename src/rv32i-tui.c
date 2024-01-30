@@ -75,4 +75,3 @@ void rv32i_destroy_ncurses(rv32i_debugger_tui_s tui)
 
 	return;
 }
-
