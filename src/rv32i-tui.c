@@ -196,7 +196,7 @@ void rv32i_debugger_tui_draw_disassembly(rv32i_hart_s* cpu)
 
 	mvwprintw(dw, 0, 2, "Disassembly:");
 
-	int j = 0; for (unsigned int i = cpu->pc-32; i != cpu->pc+36; i+=4)
+	int j = 0; for (unsigned int i = cpu->pc-32; i != cpu->pc+68; i+=4)
 	{
 
 		/* Skip nonexistent addresses */
