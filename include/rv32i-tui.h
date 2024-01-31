@@ -36,7 +36,7 @@ void rv32i_destroy_ncurses(rv32i_debugger_tui_s* tui);
 void rv32i_debbuger_tui_refresh_dimensions(rv32i_debugger_tui_s* tui);
 
 #define RV32I_TUI_MINWIDTH  100
-#define RV32I_TUI_MINHEIGHT 29
+#define RV32I_TUI_MINHEIGHT 31
 
 #define RV32I_TUI_COMMAND_NEXT 'n'
 #define RV32I_TUI_COMMAND_QUIT 'q'

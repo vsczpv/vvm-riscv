@@ -20,6 +20,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <stdbool.h>
 #include <curses.h>
 
@@ -271,7 +272,33 @@ void rv32i_backtrace(rv32i_hart_s* cpu)
 {
 
 	clear();
+
+	/* Print cheatsheet */
+	attron (A_REVERSE | A_BOLD);
+	mvprintw(cpu->tui.max_height - 1, 0, " %c", RV32I_TUI_COMMAND_NEXT);
+	attroff(A_REVERSE | A_BOLD);
+	printw(" Exec. Next Inst. ");
+
+	attron (A_REVERSE | A_BOLD);
+	printw(" %c", RV32I_TUI_COMMAND_QUIT);
+	attroff(A_REVERSE | A_BOLD);
+	printw(" Quit VVM ");
+
+	/* Print title bar */
 	attron(A_BOLD);
+	{
+		int msglen;
+		char*  msg = malloc(sizeof (char) * cpu->tui.max_width);
+
+		(void) snprintf(msg, cpu->tui.max_width, "%s", cpu->running_program_filename);
+
+		msglen = strlen(msg) / 2;
+
+		mvprintw(0, cpu->tui.max_width / 2 - msglen, "%s", msg);
+		mvwchgat(cpu->tui.win, 0, 0, cpu->tui.max_width, A_REVERSE, 0, NULL);
+
+		free(msg);
+	}
 
 	/* Prevent screen overflow */
 	if (cpu->tui.max_height < RV32I_TUI_MINHEIGHT || cpu->tui.max_width < RV32I_TUI_MINWIDTH)
@@ -285,7 +312,7 @@ void rv32i_backtrace(rv32i_hart_s* cpu)
 	/* Print registers */
 	mvprintw
 	(
-		0, 0,
+		2, 0,
 		"Registers: ra=%08x  sp=%08x  gp=%08x  tp=%08x\n"
 		"           a0=%08x  a1=%08x  a2=%08x  a3=%08x\n"
 		"           a4=%08x  a5=%08x  a6=%08x  a7=%08x\n"
@@ -306,17 +333,17 @@ void rv32i_backtrace(rv32i_hart_s* cpu)
 	);
 
 	/* Paint the registers with fancy colors */
-	mvchgat(6, 11, -1, A_BOLD, COLOR_CYAN,   NULL);
-	mvchgat(7, 11, -1, A_BOLD, COLOR_CYAN,   NULL);
+	mvchgat(8, 11, -1, A_BOLD, COLOR_CYAN,   NULL);
+	mvchgat(9, 11, -1, A_BOLD, COLOR_CYAN,   NULL);
 
-	mvchgat(0, 11, -1, A_BOLD, COLOR_YELLOW, NULL);
-	mvchgat(7, 49, -1, A_BOLD, COLOR_YELLOW, NULL);
+	mvchgat(2, 11, -1, A_BOLD, COLOR_YELLOW, NULL);
+	mvchgat(9, 49, -1, A_BOLD, COLOR_YELLOW, NULL);
 
-	mvchgat(3, 11, -1, A_BOLD, COLOR_RED,    NULL);
+	mvchgat(5, 11, -1, A_BOLD, COLOR_RED,    NULL);
 
-	mvchgat(3, 23, -1, A_BOLD, COLOR_BLUE,   NULL);
-	mvchgat(4, 11, -1, A_BOLD, COLOR_BLUE,   NULL);
-	mvchgat(5, 11, -1, A_BOLD, COLOR_BLUE,   NULL);
+	mvchgat(5, 23, -1, A_BOLD, COLOR_BLUE,   NULL);
+	mvchgat(6, 11, -1, A_BOLD, COLOR_BLUE,   NULL);
+	mvchgat(7, 11, -1, A_BOLD, COLOR_BLUE,   NULL);
 
 	/* Disassemble running code */
 	int j = 0; for (unsigned int i = cpu->pc-32; i != cpu->pc+36; i+=4)
@@ -340,11 +367,11 @@ void rv32i_backtrace(rv32i_hart_s* cpu)
 		else if (null)    ins.inst = "Null",    ins.arg1 = noarg, ins.arg2 = noarg, ins.arg3 = noarg;
 
 		/* Print it */
-		mvprintw(10 + j, 0, "0x%08x:", i);
+		mvprintw(12 + j, 0, "0x%08x:", i);
 
 		mvprintw
 		(
-			10 + j, 20,
+			12 + j, 20,
 			"%s %s%s%s%s%s",
 			ins.inst,
 			ins.arg1, ins.arg2[0] ? ", " : "",
@@ -353,12 +380,12 @@ void rv32i_backtrace(rv32i_hart_s* cpu)
 		);
 
 		/* "" cpu->pc */
-		mvprintw(10 + j++, 50, "%s", cur ? "<-" : "");
+		mvprintw(12 + j++, 50, "%s", cur ? "<-" : "");
 
 		/* Colors */
-		if (null)    mvchgat(10 + j - 1, 0, -1, A_DIM,  COLOR_WHITE,  NULL);
-		if (unknown) mvchgat(10 + j - 1, 0, -1, A_BOLD, COLOR_YELLOW, NULL);
-		if (cur)     mvchgat(10 + j - 1, 0, -1, A_BOLD, COLOR_GREEN,  NULL);
+		if (null)    mvchgat(12 + j - 1, 0, -1, A_DIM,  COLOR_WHITE,  NULL);
+		if (unknown) mvchgat(12 + j - 1, 0, -1, A_BOLD, COLOR_YELLOW, NULL);
+		if (cur)     mvchgat(12 + j - 1, 0, -1, A_BOLD, COLOR_GREEN,  NULL);
 
 	}
 
@@ -367,7 +394,7 @@ void rv32i_backtrace(rv32i_hart_s* cpu)
 	/* Calculate the stackdisplay's final position on the screen */
 	int sd_finalpos = cpu->tui.max_width - RV32I_STACKDISPLAY_WIDTH;
 
-	mvprintw(0, sd_finalpos, "Frame: At %08x", cpu->regs[8]);
+	mvprintw(2, sd_finalpos, "Frame: At %08x", cpu->regs[8]);
 
 	/*int*/ j = 0;
 	  int   k = 0;
@@ -381,8 +408,8 @@ void rv32i_backtrace(rv32i_hart_s* cpu)
 		/* Check if the memory address currently being displayed actually exists */
 		if ( rv32i_oob_addr(cpu, i) )
 		{
-			mvprintw(2 + j, sd_finalpos + (k*3), ".. ");
-			mvchgat(2  + j, sd_finalpos + (k*3), 3, A_DIM, COLOR_WHITE, NULL);
+			mvprintw(4 + j, sd_finalpos + (k*3), ".. ");
+			mvchgat (4 + j, sd_finalpos + (k*3), 3, A_DIM, COLOR_WHITE, NULL);
 			datastring[k] = '.';
 			goto skip;
 		};
@@ -394,14 +421,14 @@ void rv32i_backtrace(rv32i_hart_s* cpu)
 		/* Only display well behaved ASCII */
 		if (datastring[k] < 0x20 || datastring[k] >= 0x7f) datastring[k] = '.';
 
-		mvprintw(2 + j, sd_finalpos + (k*3), "%02x", value);
+		mvprintw(4 + j, sd_finalpos + (k*3), "%02x", value);
 
 		/* Handle coloring for byte */
 		switch (value)
 		{
 			case 0x00:
 			{
-				mvchgat(2 + j, sd_finalpos + (k*3), 3, A_DIM, COLOR_WHITE, NULL);
+				mvchgat(4 + j, sd_finalpos + (k*3), 3, A_DIM, COLOR_WHITE, NULL);
 				break;
 			}
 			default: break;
@@ -414,22 +441,11 @@ void rv32i_backtrace(rv32i_hart_s* cpu)
 		/* After the eight byte, display the ASCII dump from the last octate */
 		if (k == 8)
 		{
-			mvprintw(2 + j, sd_finalpos + (k*3), "  |%s|", datastring);
+			mvprintw(4 + j, sd_finalpos + (k*3), "  |%s|", datastring);
 			k = 0, j++;
 		}
 
 	}
-
-	/* Print cheatsheet */
-	attron (A_REVERSE | A_BOLD);
-	mvprintw(cpu->tui.max_height - 1, 0, " %c", RV32I_TUI_COMMAND_NEXT);
-	attroff(A_REVERSE | A_BOLD);
-	printw(" Exec. Next Inst. ");
-
-	attron (A_REVERSE | A_BOLD);
-	printw(" %c", RV32I_TUI_COMMAND_QUIT);
-	attroff(A_REVERSE | A_BOLD);
-	printw(" Quit VVM ");
 
 	attroff(A_BOLD);
 	refresh();

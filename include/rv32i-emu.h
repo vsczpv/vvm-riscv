@@ -60,6 +60,7 @@ typedef struct rv32i_hart_s
 	uint32_t pc;
 	rv32i_iomap_s* memoized_iomap;
 	rv32i_debugger_tui_s tui;
+	char* running_program_filename;
 } rv32i_hart_s;
 
 typedef struct rv32i_cmdline_chooseniomap_s

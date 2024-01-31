@@ -218,6 +218,8 @@ void rv32i_load_program(rv32i_hart_s* cpu, rv32i_posix_file_s file, rv32i_cmdlin
 
 	rv32i_mem_copyfromhost(cpu, cmd.load_at, file.buf, file.st.st_size);
 
+	cpu->running_program_filename = cmd.filename;
+
 	return;
 }
 
