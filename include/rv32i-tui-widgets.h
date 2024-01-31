@@ -34,4 +34,6 @@ void rv32i_debugger_tui_draw_registers  (rv32i_hart_s* cpu);
 void rv32i_debugger_tui_draw_disassembly(rv32i_hart_s* cpu);
 void rv32i_debugger_tui_draw_memorydump (rv32i_hart_s* cpu);
 
+void rv32i_debugger_tui_draw_stdout(rv32i_hart_s* cpu);
+
 #endif // RV32I_TUI_WIDGETS_H_

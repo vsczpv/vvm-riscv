@@ -291,6 +291,9 @@ void rv32i_backtrace(rv32i_hart_s* cpu)
 	rv32i_debugger_tui_draw_disassembly(cpu);
 	rv32i_debugger_tui_draw_memorydump(cpu);
 
+	/* Draw stdout */
+	rv32i_debugger_tui_draw_stdout(cpu);
+
 	rv32i_debugger_tui_refresh(cpu);
 
 	return;
