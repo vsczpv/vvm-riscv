@@ -28,17 +28,28 @@ typedef struct rv32i_debugger_tui_s
 	WINDOW* win;
 	int max_width;
 	int max_height;
+
+	WINDOW* register_dump_win;
+	WINDOW* disassemble_win;
+	WINDOW* memory_dump_win;
 } rv32i_debugger_tui_s;
 
 rv32i_debugger_tui_s rv32i_init_ncurses    (void);
 void rv32i_destroy_ncurses(rv32i_debugger_tui_s* tui);
 
-void rv32i_debbuger_tui_refresh_dimensions(rv32i_debugger_tui_s* tui);
+void rv32i_debugger_tui_update_screen_dimensions(rv32i_debugger_tui_s* tui);
 
 #define RV32I_TUI_MINWIDTH  100
 #define RV32I_TUI_MINHEIGHT 31
 
 #define RV32I_TUI_COMMAND_NEXT 'n'
 #define RV32I_TUI_COMMAND_QUIT 'q'
+
+#define RV32I_REGISTERDISPLAY_WIDTH  62
+#define RV32I_REGISTERDISPLAY_HEIGHT  8
+#define RV32I_DISASSEMBLY_WIDTH      53
+#define RV32I_DISASSEMBLY_HEIGHT     18
+#define RV32I_MEMORYDUMP_WIDTH       37
+#define RV32I_MEMORYDUMP_HEIGHT      26
 
 #endif // RV32I_TUI_H_

@@ -20,13 +20,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <stdbool.h>
 #include <curses.h>
 
 #include "rv32i-inst.h"
 #include "rv32i-backtrace.h"
 #include "rv32i-mem.h"
+#include "rv32i-tui-widgets.h"
 
 char* rv32i_mnemonic_registers[32] =
 {
@@ -271,34 +271,11 @@ rv32i_mnemonic_string_s rv32i_backtrace_getmnemonic(uint32_t inst)
 void rv32i_backtrace(rv32i_hart_s* cpu)
 {
 
-	clear();
+	rv32i_debugger_tui_clear(cpu);
 
-	/* Print cheatsheet */
-	attron (A_REVERSE | A_BOLD);
-	mvprintw(cpu->tui.max_height - 1, 0, " %c", RV32I_TUI_COMMAND_NEXT);
-	attroff(A_REVERSE | A_BOLD);
-	printw(" Exec. Next Inst. ");
-
-	attron (A_REVERSE | A_BOLD);
-	printw(" %c", RV32I_TUI_COMMAND_QUIT);
-	attroff(A_REVERSE | A_BOLD);
-	printw(" Quit VVM ");
-
-	/* Print title bar */
-	attron(A_BOLD);
-	{
-		int msglen;
-		char*  msg = malloc(sizeof (char) * cpu->tui.max_width);
-
-		(void) snprintf(msg, cpu->tui.max_width, "%s", cpu->running_program_filename);
-
-		msglen = strlen(msg) / 2;
-
-		mvprintw(0, cpu->tui.max_width / 2 - msglen, "%s", msg);
-		mvwchgat(cpu->tui.win, 0, 0, cpu->tui.max_width, A_REVERSE, 0, NULL);
-
-		free(msg);
-	}
+	/* Draw main window surroudings */
+	rv32i_debugger_tui_draw_cheatsheet(cpu);
+	rv32i_debugger_tui_draw_titlebar  (cpu);
 
 	/* Prevent screen overflow */
 	if (cpu->tui.max_height < RV32I_TUI_MINHEIGHT || cpu->tui.max_width < RV32I_TUI_MINWIDTH)
@@ -309,146 +286,12 @@ void rv32i_backtrace(rv32i_hart_s* cpu)
 		return;
 	}
 
-	/* Print registers */
-	mvprintw
-	(
-		2, 0,
-		"Registers: ra=%08x  sp=%08x  gp=%08x  tp=%08x\n"
-		"           a0=%08x  a1=%08x  a2=%08x  a3=%08x\n"
-		"           a4=%08x  a5=%08x  a6=%08x  a7=%08x\n"
-		"           fp=%08x  s1=%08x  s2=%08x  s3=%08x\n"
-		"           s4=%08x  s6=%08x  s6=%08x  s7=%08x\n"
-		"           s8=%08x  s9=%08x s10=%08x s11=%08x\n"
-		"           t0=%08x  t1=%08x  t2=%08x  t3=%08x\n"
-		"           t4=%08x  t5=%08x  t6=%08x  pc=%08x",
-		cpu->regs[1],  cpu->regs[2],  cpu->regs[3],  cpu->regs[4],
-		cpu->regs[10], cpu->regs[11],
-		cpu->regs[12], cpu->regs[13], cpu->regs[14], cpu->regs[15],
-		cpu->regs[16], cpu->regs[17], cpu->regs[8],  cpu->regs[9],  cpu->regs[18], cpu->regs[19],
-		cpu->regs[20], cpu->regs[21], cpu->regs[22], cpu->regs[23],
-		cpu->regs[24], cpu->regs[25], cpu->regs[26], cpu->regs[27],
-		cpu->regs[5],  cpu->regs[6],  cpu->regs[7],  cpu->regs[28],
-		cpu->regs[29], cpu->regs[30], cpu->regs[31],
-		cpu->pc
-	);
+	/* Draw widgets */
+	rv32i_debugger_tui_draw_registers(cpu);
+	rv32i_debugger_tui_draw_disassembly(cpu);
+	rv32i_debugger_tui_draw_memorydump(cpu);
 
-	/* Paint the registers with fancy colors */
-	mvchgat(8, 11, -1, A_BOLD, COLOR_CYAN,   NULL);
-	mvchgat(9, 11, -1, A_BOLD, COLOR_CYAN,   NULL);
-
-	mvchgat(2, 11, -1, A_BOLD, COLOR_YELLOW, NULL);
-	mvchgat(9, 49, -1, A_BOLD, COLOR_YELLOW, NULL);
-
-	mvchgat(5, 11, -1, A_BOLD, COLOR_RED,    NULL);
-
-	mvchgat(5, 23, -1, A_BOLD, COLOR_BLUE,   NULL);
-	mvchgat(6, 11, -1, A_BOLD, COLOR_BLUE,   NULL);
-	mvchgat(7, 11, -1, A_BOLD, COLOR_BLUE,   NULL);
-
-	/* Disassemble running code */
-	int j = 0; for (unsigned int i = cpu->pc-32; i != cpu->pc+36; i+=4)
-	{
-
-		/* Skip nonexistent addresses */
-		if ( rv32i_oob_addr(cpu, i) ) continue;
-
-		/* Highlight cpu->pc */
-		bool cur = i == cpu->pc ? true : false;
-
-		/* Get the decoded instruction */
-		rv32i_mnemonic_string_s ins = rv32i_backtrace_getmnemonic(rv32i_getinst(cpu, i));
-
-		/* Handle invalid and null instructions */
-		bool unknown = ins.inst[0] == '?';
-		bool null    = ins.inst[0] == '0';
-		char* noarg  = "\0";
-
-		     if (unknown) ins.inst = "Unknown", ins.arg1 = noarg, ins.arg2 = noarg, ins.arg3 = noarg;
-		else if (null)    ins.inst = "Null",    ins.arg1 = noarg, ins.arg2 = noarg, ins.arg3 = noarg;
-
-		/* Print it */
-		mvprintw(12 + j, 0, "0x%08x:", i);
-
-		mvprintw
-		(
-			12 + j, 20,
-			"%s %s%s%s%s%s",
-			ins.inst,
-			ins.arg1, ins.arg2[0] ? ", " : "",
-			ins.arg2, ins.arg3[0] || ins.immd[0] ? ", " : "",
-			ins.immd[0] ? ins.immd : ins.arg3
-		);
-
-		/* "" cpu->pc */
-		mvprintw(12 + j++, 50, "%s", cur ? "<-" : "");
-
-		/* Colors */
-		if (null)    mvchgat(12 + j - 1, 0, -1, A_DIM,  COLOR_WHITE,  NULL);
-		if (unknown) mvchgat(12 + j - 1, 0, -1, A_BOLD, COLOR_YELLOW, NULL);
-		if (cur)     mvchgat(12 + j - 1, 0, -1, A_BOLD, COLOR_GREEN,  NULL);
-
-	}
-
-	/* Show memory near frame pointer */
-
-	/* Calculate the stackdisplay's final position on the screen */
-	int sd_finalpos = cpu->tui.max_width - RV32I_STACKDISPLAY_WIDTH;
-
-	mvprintw(2, sd_finalpos, "Frame: At %08x", cpu->regs[8]);
-
-	/*int*/ j = 0;
-	  int   k = 0;
-
-	/* Buffer for the ASCII dump */
-	char datastring[9] = { [8] = '\0' };
-
-	for (unsigned int i = cpu->regs[8]-96; i != (unsigned) cpu->regs[8]+96; i++)
-	{
-
-		/* Check if the memory address currently being displayed actually exists */
-		if ( rv32i_oob_addr(cpu, i) )
-		{
-			mvprintw(4 + j, sd_finalpos + (k*3), ".. ");
-			mvchgat (4 + j, sd_finalpos + (k*3), 3, A_DIM, COLOR_WHITE, NULL);
-			datastring[k] = '.';
-			goto skip;
-		};
-
-		uint32_t value = rv32i_getbyte(cpu, i);
-
-		datastring[k] = (char) value;
-
-		/* Only display well behaved ASCII */
-		if (datastring[k] < 0x20 || datastring[k] >= 0x7f) datastring[k] = '.';
-
-		mvprintw(4 + j, sd_finalpos + (k*3), "%02x", value);
-
-		/* Handle coloring for byte */
-		switch (value)
-		{
-			case 0x00:
-			{
-				mvchgat(4 + j, sd_finalpos + (k*3), 3, A_DIM, COLOR_WHITE, NULL);
-				break;
-			}
-			default: break;
-		}
-
-		skip:
-
-		k++;
-
-		/* After the eight byte, display the ASCII dump from the last octate */
-		if (k == 8)
-		{
-			mvprintw(4 + j, sd_finalpos + (k*3), "  |%s|", datastring);
-			k = 0, j++;
-		}
-
-	}
-
-	attroff(A_BOLD);
-	refresh();
+	rv32i_debugger_tui_refresh(cpu);
 
 	return;
 }

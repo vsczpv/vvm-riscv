@@ -1,5 +1,5 @@
 /*
- * Copyright © 2022-2024 Vinícius Schütz Piva
+ * Copyright © 2024 Vinícius Schütz Piva
  *
  * This file is part of vvm-riscv
  *
@@ -18,37 +18,20 @@
  *
  */
 
-#ifndef RV32I_BACKTRACE_H_
-#define RV32I_BACKTRACE_H_
-
-#include <stdbool.h>
+#ifndef RV32I_TUI_WIDGETS_H_
+#define RV32I_TUI_WIDGETS_H_
 
 #include "rv32i-emu.h"
-#include "rv32i-inst.h"
+#include "rv32i-tui.h"
 
-typedef struct rv32i_mnemonic_s
-{
-	char* nofunct_mnemonic;
-	char funct3[8][8];
-	char funct7[8][8];
-	char type;
-} rv32i_mnemonic_s;
+void rv32i_debugger_tui_clear  (rv32i_hart_s* cpu);
+void rv32i_debugger_tui_refresh(rv32i_hart_s* cpu);
 
-typedef struct rv32i_mnemonic_string_s
-{
-	char* inst;
-	char* arg1;
-	char* arg2;
-	char* arg3;
-	char immd[22];
-} rv32i_mnemonic_string_s;
+void rv32i_debugger_tui_draw_cheatsheet(rv32i_hart_s* cpu);
+void rv32i_debugger_tui_draw_titlebar  (rv32i_hart_s* cpu);
 
-rv32i_mnemonic_string_s rv32i_backtrace_getmnemonic(uint32_t inst);
-void rv32i_backtrace(rv32i_hart_s* cpu);
+void rv32i_debugger_tui_draw_registers  (rv32i_hart_s* cpu);
+void rv32i_debugger_tui_draw_disassembly(rv32i_hart_s* cpu);
+void rv32i_debugger_tui_draw_memorydump (rv32i_hart_s* cpu);
 
-extern rv32i_mnemonic_s rv32i_backtrace_mnemonictable[RV32I_OPCODE_CUSTOM3+1];
-extern char* rv32i_backtrace_registers[32];
-
-extern char* rv32i_mnemonic_null;
-
-#endif // RV32I_BACKTRACE_H_
+#endif // RV32I_TUI_WIDGETS_H_
