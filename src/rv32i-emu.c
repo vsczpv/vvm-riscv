@@ -137,7 +137,9 @@ bool rv32i_handle_dbg(rv32i_hart_s* cpu)
 	{
 		rv32i_backtrace(cpu);
 
+		noecho();
 		int input = wgetch(cpu->tui.win);
+		echo();
 
 		if (input == KEY_RESIZE) { rv32i_debugger_tui_update_screen_dimensions(&cpu->tui); continue; }
 

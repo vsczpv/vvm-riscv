@@ -31,6 +31,7 @@
 #include "rv32i-backtrace.h"
 #include "rv32i-mem.h"
 #include "rv32i-string.h"
+#include "rv32i-tui-widgets.h"
 
 bool rv32i_invalassert(uint32_t inst, uint32_t pc)
 {
@@ -684,7 +685,6 @@ bool rv32i_inst_system(int inst, rv32i_hart_s* cpu)
 					const char msg[] = VT_BOLD VT_GREEN "Program finished gracefully." VT_END;
 
 					if (debug)
-						/* NOTE: Not actually fatal, but it does destroy ncurses */
 						rv32i_error_fatal_fprintf(stderr, "%s\n", msg);
 
 					else puts(msg);
@@ -734,29 +734,37 @@ bool rv32i_inst_system(int inst, rv32i_hart_s* cpu)
 
 						if (debug)
 						{
-							clear();
+							const char msg[] = " Guest input: ";
+							const int  len   = sizeof (msg) - 1;
+
+							int inputlen = sizeof (char) * cpu->tui.max_width - len;
+							    input    = malloc(inputlen);
+
 							curs_set(true);
 
-							mvprintw(0, 0, "Input required:\n");
-							mvchgat(0, 0, -1, A_BOLD, COLOR_YELLOW, NULL);
+							move(cpu->tui.max_height-1, 0);
+							clrtoeol();
 
-							while (true)
-							{
-								mvscanw(1, 0, "%ms", &input);
+							mvprintw(cpu->tui.max_height-1, 0, msg);
+							mvchgat (cpu->tui.max_height-1, 0, len, A_BOLD | A_REVERSE, COLOR_YELLOW, NULL);
 
-								if (!input) continue;
-								else if (input[0] != '\n') break;
-								else free(input);
-							}
+							mvgetnstr(cpu->tui.max_height-1, len+2, input, inputlen);
 
 							curs_set(false);
+
 						}
 						else
 						{
+							// TODO: This moslikely chops whitespaced strings
 							scanf("%ms", &input);
 						}
 
-						if (!input) { perror("Fatal error on ECALL Read() scanf"); return true; }
+						// TODO: Make this fancier;
+						if (!input)
+						{
+							rv32i_error_fatal_fprintf(stderr, "Fatal error on ECALL Read() scanf");
+							return true;
+						}
 
 						int count = strlen(input);
 
@@ -778,11 +786,12 @@ bool rv32i_inst_system(int inst, rv32i_hart_s* cpu)
 					break;
 				}
 				default:
-					fprintf
+					rv32i_error_fatal_fprintf
 					(
 						stderr,
-						"\033[1;32m[RT] \033[39m%s:%i: \033[31merror: \033[0mIn function \033[1m'%s'\033[0m: "
-						"Invalid built-in system call: \033[1m0x%08x\033[0m. Instruction \033[1m0x%08x\033[0m, program counter \033[1m0x%08x\033[0m.\n",
+						VT_BOLD VT_GREEN "[RT] " VT_FORE "%s:%i: " VT_RED "error: " VT_END "In function " VT_BOLD "'%s'" VT_END ": "
+						"Invalid built-in system call: " VT_BOLD "0x%08x" VT_END ". Instruction " VT_BOLD "0x%08x" VT_END
+						", program counter " VT_BOLD "0x%08x" VT_END ".\n",
 						__FILE__, __LINE__, __func__, cpu->regs[2], inst, cpu->pc - 4
 					);
 					rv32i_backtrace(cpu);
