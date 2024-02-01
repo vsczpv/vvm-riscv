@@ -22,6 +22,7 @@
 #define RV32I_TUI_H_
 
 #include <curses.h>
+#include "rv32i-string.h"
 
 typedef struct rv32i_debugger_tui_s
 {
@@ -34,6 +35,8 @@ typedef struct rv32i_debugger_tui_s
 	WINDOW* memory_dump_win;
 
 	WINDOW* stdout_win;
+	WINDOW* stdout_inner_win;
+	rv32i_counted_string_s stdout_buf;
 } rv32i_debugger_tui_s;
 
 rv32i_debugger_tui_s rv32i_init_ncurses    (void);
@@ -56,5 +59,8 @@ void rv32i_debugger_tui_update_screen_dimensions(rv32i_debugger_tui_s* tui);
 
 #define RV32I_STDOUT_WIDTH  54
 #define RV32I_STDOUT_HEIGHT 14
+
+#define RV32I_IOBUF_WIDTH   (RV32I_STDOUT_WIDTH  - 2)
+#define RV32I_IOBUF_HEIGHT  (RV32I_STDOUT_HEIGHT - 2)
 
 #endif // RV32I_TUI_H_

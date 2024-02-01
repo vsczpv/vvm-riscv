@@ -24,7 +24,7 @@ BUILD =       build
 INCLUDE =     include
 
 CC =          cc
-OPT_CARGS :=
+OPT_CARGS ?=
 CARGS =       $(OPT_CARGS) -I$(INCLUDE) -DVERSION='$(VERSION)' -Wall -Wextra -std=c2x -Wno-misleading-indentation -Wno-missing-field-initializers
 DEBUG_CARGS =  -g -fsanitize=address -fsanitize=pointer-compare -fsanitize=undefined
 

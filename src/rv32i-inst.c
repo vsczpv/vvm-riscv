@@ -30,6 +30,7 @@
 #include "rv32i-error.h"
 #include "rv32i-backtrace.h"
 #include "rv32i-mem.h"
+#include "rv32i-string.h"
 
 bool rv32i_invalassert(uint32_t inst, uint32_t pc)
 {
@@ -712,11 +713,7 @@ bool rv32i_inst_system(int inst, rv32i_hart_s* cpu)
 
 						if (debug)
 						{
-							clear();
-
-							mvprintw(0, 0, "%.*s", (int) size, buf);
-
-							getch();
+							rv32i_cnstring_append_rcnstr(&cpu->tui.stdout_buf, (char*) buf, size);
 						}
 						else
 						{

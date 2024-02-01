@@ -69,7 +69,13 @@ rv32i_debugger_tui_s rv32i_init_ncurses(void)
 	tui.disassemble_win   = newwin(RV32I_DISASSEMBLY_HEIGHT,     RV32I_DISASSEMBLY_WIDTH,    10, 0);
 	tui.memory_dump_win   = newwin(RV32I_MEMORYDUMP_HEIGHT,      RV32I_MEMORYDUMP_WIDTH,      1,53);
 
-	tui.stdout_win = newwin(RV32I_STDOUT_HEIGHT, RV32I_STDOUT_WIDTH, 9 + RV32I_DISASSEMBLY_HEIGHT, 0);
+	tui.stdout_win       = newwin(RV32I_STDOUT_HEIGHT, RV32I_STDOUT_WIDTH, 9 + RV32I_DISASSEMBLY_HEIGHT, 0);
+	tui.stdout_inner_win = newwin(RV32I_IOBUF_HEIGHT,  RV32I_IOBUF_WIDTH,  10+ RV32I_DISASSEMBLY_HEIGHT, 1);
+
+	(void) idlok   (tui.stdout_inner_win, true);
+	(void) scrollok(tui.stdout_inner_win, true);
+
+	tui.stdout_buf = rv32i_cnstring_init();
 
 	return tui;
 }
@@ -77,10 +83,12 @@ rv32i_debugger_tui_s rv32i_init_ncurses(void)
 void rv32i_destroy_ncurses(rv32i_debugger_tui_s* tui)
 {
 
-	(void) tui;
+	if (tui)
+	{
+		rv32i_cnstring_delete(&tui->stdout_buf);
+	}
 
 	curs_set(true);
-
 	endwin();
 
 	return;
@@ -94,6 +102,7 @@ void rv32i_debugger_tui_clear(rv32i_hart_s* cpu)
 	wclear(cpu->tui.disassemble_win);
 	wclear(cpu->tui.memory_dump_win);
 	wclear(cpu->tui.stdout_win);
+	wclear(cpu->tui.stdout_inner_win);
 
 	return;
 }
@@ -106,6 +115,7 @@ void rv32i_debugger_tui_refresh(rv32i_hart_s* cpu)
 	wrefresh(cpu->tui.disassemble_win);
 	wrefresh(cpu->tui.memory_dump_win);
 	wrefresh(cpu->tui.stdout_win);
+	wrefresh(cpu->tui.stdout_inner_win);
 
 	return;
 }
@@ -312,10 +322,13 @@ void rv32i_debugger_tui_draw_stdout(rv32i_hart_s* cpu)
 {
 
 	WINDOW* sw = cpu->tui.stdout_win;
+	WINDOW* iw = cpu->tui.stdout_inner_win;
 
 	wborder(sw, 0,0,0,0, ACS_LTEE,ACS_RTEE,0,0);
 
 	mvwprintw(sw, 0, 2, "Program IO:");
+
+	mvwprintw(iw, 0, 0, "%.*s", (int) cpu->tui.stdout_buf.count, cpu->tui.stdout_buf.string);
 
 	return;
 }
